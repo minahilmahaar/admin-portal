@@ -22,12 +22,48 @@ export const routes: Routes = [
     path: '',
     component: DefaultLayoutComponent,
     data: {
-      title: 'Home'
+      title: ''
     },
+
     children: [
       {
         path: 'dashboard',
         loadChildren: () => import('./views/dashboard/routes').then((m) => m.routes)
+      },
+      {
+        path: 'clients',
+        loadComponent: () => import('./views/clients/clients.component').then(m => m.ClientsComponent),
+        data: {
+          title: 'Clients'
+        }
+      },
+      {
+        path: 'clientslogs',
+        loadComponent: () => import('./views/clientslogs/clientslogs.component').then(m => m.ClientslogsComponent),
+        data: {
+          title: 'Clients Logs'
+        }
+      },
+      {
+        path: 'failedtransactions',
+        loadComponent: () => import('./views/failedtransactions/failedtransactions.component').then(m => m.FailedtransactionsComponent),
+        data: {
+          title: 'Failed Transactions'
+        }
+      },
+      {
+        path: 'queryscreen',
+        loadComponent: () => import('./views/queryscreen/queryscreen.component').then(m => m.QueryscreenComponent),
+        data: {
+          title: 'Query Screen'
+        }
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./views/users/users.component').then(m => m.UsersComponent),
+        data: {
+          title: 'Users'
+        }
       },
       {
         path: 'theme',

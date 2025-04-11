@@ -1,1 +1,206 @@
-<p>clientslogs works!</p>
+<form [formGroup]="MyForm" (ngSubmit)="OnFormSubmit()">
+    <c-col xs="12">
+      <c-card class="mb-4">
+        <c-card-header ngPreserveWhitespaces>
+          <c-col xs="12">
+            <!-- First row -->
+            <c-row class="g-3 mt-1">
+              <c-col [sm]="3" class="d-flex justify-content-end pt-2">
+                <label cLabel><strong>From Date:</strong></label>
+              </c-col>
+              <c-col [sm]="3" class="mb-3">
+                <c-date-picker
+                  formControlName="FromDate"
+                  locale="en-US"
+                  [maxDate]="TodaysDate"
+                  required
+                ></c-date-picker>
+              </c-col>
+              <c-col [sm]="1" class="d-flex justify-content-end pt-2">
+                <label cLabel><strong>To Date:</strong></label>
+              </c-col>
+  
+              <c-col [sm]="3">
+                <c-date-picker
+                  formControlName="ToDate"
+                  locale="en-US"
+                  [maxDate]="TodaysDate"
+                  required
+                ></c-date-picker>
+              </c-col>
+            </c-row>
+            <!-- Second row -->
+            <c-row class="g-3">
+              <c-col [sm]="3" class="d-flex justify-content-end pt-2">
+                <label cLabel><strong>Activity Type:</strong></label>
+              </c-col>
+              <c-col [sm]="3">
+                <select
+                  aria-label="Default select example"
+                  cSelect
+                  formControlName="ActivityType"
+                  required
+                >
+                  <option value="">Select Option</option>
+                  <!-- <option value="DownloadingItem">Downloading Items</option>
+                  <option value="DownloadingCustomer">
+                    Downloading Customers
+                  </option>
+                  <option value="DownloadingVendors">Downloading Vendors</option>
+                  <option value="LocationDownloading">
+                    Downloading Locations
+                  </option>
+                  <option value="Sales">Sales</option>
+                  <option value="Return">Returns</option>
+                  <option value="SalesPayments">Sales Payments</option>
+                  <option value="PurchaseReceipt">Purchase Receipts</option>
+                  <option value="Upload Inventory Transfer RMH To ACM">
+                    Inventory Transfer RMH To ACM
+                  </option>
+                  <option value="UploadInventoryAdjustment">
+                    Inventory Adjustments
+                  </option> -->
+                </select>
+              </c-col>
+  
+              <c-col [sm]="1" class="d-flex justify-content-end pt-2">
+                <label cLabel><strong>Status:</strong></label>
+              </c-col>
+  
+              <c-col [sm]="3">
+                <select
+                  aria-label="Default select example"
+                  cSelect
+                  formControlName="Status"
+                >
+                  <option value="All">All</option>
+                  <option value="1">Success</option>
+                  <option value="0">Failed</option>
+                </select>
+              </c-col>
+            </c-row>
+            <!-- buttons row -->
+            <c-row class="g-3 mt-2 mb-2">
+              <c-col [sm]="2" class="d-flex justify-content-end pt-2"> </c-col>
+              <c-col [sm]="3" class="mb-3"> </c-col>
+              <c-col [sm]="2" class="d-flex justify-content-end pt-2"> </c-col>
+  
+              <c-col [sm]="3">
+                <div class="d-grid gap-2 d-md-flex d-flex justify-content-end">
+                  <button
+                    
+                    cLoadingButton
+                    type="submit"
+                    [disabled]="!MyForm.valid"
+                  >
+                    <svg cIcon name="cilSearch"></svg>
+                    Search
+                  </button>
+                  <button (click)="onCancel()" cButton color="danger">
+                    <svg cIcon name="cilXCircle"></svg> Clear
+                  </button>
+                </div>
+              </c-col>
+            </c-row>
+          </c-col>
+        </c-card-header>
+        <div class="d-flex justify-content-center mt-4 mb-4">
+          <c-col xs="11">
+            <c-smart-table
+              #PaymetTable
+              [activePage]="1"
+              [columnSorter]="true"
+              [columns]="Columns"
+              [items]="Data"
+              tableFilterPlaceholder="Type Here"
+              [itemsPerPageLabel]="
+                totalCount ? totalCount + 'Items Per Page:' : 'Items Per Page:'
+              "
+              [itemsPerPageSelect]="true"
+              [itemsPerPage]="10"
+              [sorterValue]="{ column: 'name', state: 'asc' }"
+              [tableFilter]="true"
+              tableFilterLabel="  Search:"
+              noItemsLabel="No Record Found"
+              [tableProps]="{ hover: true, responsive: true }"
+              [tableBodyProps]="{ align: 'middle' }"
+              cleaner
+              clickableRows
+              header
+              pagination
+              selectAll="false"
+            >
+              <ng-template
+                cTemplateId="tableData"
+                let-columnName="columnName"
+                let-item="item"
+                let-tdContent="tdContent"
+              >
+                <td>
+                  <ng-container [ngSwitch]="columnName">
+                    <ng-container *ngSwitchCase="'status'">
+                      <c-badge [color]="getBadge(tdContent)">
+                        {{ item[columnName] }}
+                      </c-badge>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'RMHID'">
+                      <div class="text-center">
+                        {{ tdContent }}
+                      </div>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'ACID'">
+                      <div class="text-end">
+                        {{ tdContent }}
+                      </div>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'RMHStoreID'">
+                      <div class="text-end">
+                        {{ tdContent }}
+                      </div>
+                    </ng-container>
+  
+                    <ng-container
+                      *ngSwitchCase="'IsActive'"
+                      [ngSwitch]="tdContent"
+                    >
+                      <c-form-check [switch]="true">
+                        <input
+                          cFormCheckInput
+                          type="checkbox"
+                          [checked]="tdContent"
+                          disabled
+                        />
+                      </c-form-check>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'CreatedOnUTC'">
+                      <div class="text-end">
+                        {{ tdContent }}
+                      </div>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'Actions'">
+                      <button
+                        (click)="onRowClickModel(item._id)"
+                        cButton
+                        color="primary"
+                        size="sm"
+                        variant="outline"
+                      >
+                        Edit
+                      </button>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>
+                      {{ tdContent }}
+                    </ng-container>
+                    <!-- <ng-container *ngSwitchCase="'CreatedOnUTC'">
+                      {{ tdContent | date: "short" }}
+                    </ng-container> -->
+                  </ng-container>
+                </td>
+              </ng-template>
+            </c-smart-table>
+          </c-col>
+        </div>
+      </c-card>
+    </c-col>
+  </form>
+  

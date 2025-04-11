@@ -1,1 +1,196 @@
-<p>clients works!</p>
+<c-card>
+    <c-card-body>
+        <c-smart-table
+        [activePage]="1"
+        [columnSorter]="true"
+        [columns]="CustomersColumns"
+        [itemsPerPageSelect]="true"
+        [itemsPerPage]="10"
+        tableFilterPlaceholder="Type Here"
+        [items]="CustomersData"
+        [sorterValue]="{ column: 'name', state: 'asc' }"
+        [tableFilter]="true"
+        tableFilterLabel="  Search:"
+        [itemsPerPageLabel]="
+          totalCount ? totalCount + 'Items Per Page:' : 'Items Per Page:'
+        "
+        noItemsLabel="No Record Found"
+        [tableProps]="{ hover: true, responsive: true }"
+        [tableBodyProps]="{ align: 'middle' }"
+        cleaner
+        clickableRows
+        header
+        pagination
+        selectAll="false"
+        [selectable]="true"
+      >
+        <ng-template cTemplateId="tableDetails" let-item="item">
+          <div [visible]="this.details_visible[item.___id] === true" cCollapse>
+            <c-card class="rounded-0">
+              <c-card-body>
+                <h5>Details</h5>
+                <!-- <h5>{{ item['Number'] }}</h5> -->
+                <!-- <p class="text-muted">User since: {{ item['CreatedOnUtc'] }}</p> -->
+  
+                <c-smart-table
+                  [activePage]="1"
+                  [columns]="GLDetailsModalColumns"
+                  [itemsPerPageSelect]="true"
+                  [itemsPerPage]="5"
+                  tableFilterPlaceholder="Type Here"
+                  [items]="GLDetailsModalData"
+                  [tableHeadProps]="{color: 'warning'}"
+                  [sorterValue]="{ column: 'name', state: 'asc' }"
+                  
+                  [itemsPerPageLabel]="
+                    modaltotalCount
+                      ? modaltotalCount + 'Items Per Page:'
+                      : 'Items Per Page:'
+                  "
+                  noItemsLabel="No Record Found"
+                  [tableProps]="{ hover: true, responsive: true }"
+                  [tableBodyProps]="{ align: 'middle' }"
+                  cleaner
+                  clickableRows
+                  header
+                  pagination
+                >
+                  >
+                  <ng-template cTemplateId="tableSummaryRow">
+                    <tr class="text-end">
+                      <th ></th>
+                      <th ></th>
+                      <th ></th>
+                      <th ></th>
+                      <th ></th>
+                      <th ></th>
+                      <th >{{totalcredits| currency : " "}}</th>
+                      <th >{{totaldebits| currency : " "}}</th>
+                      <th> </th>
+                    </tr>
+                  </ng-template>
+                  
+                  <ng-template
+                    cTemplateId="tableData"
+                    let-columnName="columnName"
+                    let-item="item"
+                    let-tdContent="tdContent"
+                  >
+                    <td>
+                      <ng-container [ngSwitch]="columnName">
+                        <ng-container *ngSwitchCase="'Actions'" class="py-2">
+                          <button
+                            [cModalToggle]="MappingModal.id"
+                            cButton
+                            color="primary"
+                            size="sm"
+                            variant="outline"
+                            (click)="EditMapping(item)"
+                          >
+                            Set Mappings
+                          </button>
+                        </ng-container>
+  
+                        <ng-container *ngSwitchCase="'acmid'">
+                          <div class="text-end">
+                            {{ tdContent }}
+                          </div>
+                        </ng-container>
+  
+                        <ng-container *ngSwitchCase="'credit_Amount'">
+                          <div class="text-end">
+                            {{ tdContent | currency : " " }}
+                          </div>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'debit_Amount'">
+                          <div class="text-end">
+                            {{ tdContent | currency : " " }}
+                          </div>
+                        </ng-container>
+  
+                        <ng-container *ngSwitchDefault>
+                          {{ tdContent }}
+                        </ng-container>
+                      </ng-container>
+                    </td>
+                  </ng-template>
+                </c-smart-table>
+                <div class="text-center" style="font-size: 28px">
+                  <c-spinner
+                    color="primary"
+                    variant="grow"
+                    *ngIf="ModalLoading"
+                  ></c-spinner>
+                </div>
+              </c-card-body>
+              <!-- <c-card-footer>
+              <button cButton color="info" size="sm">
+                User Settings
+              </button>
+              <button cButton class="ms-1" color="danger" size="sm">
+                Delete
+              </button>
+            </c-card-footer> -->
+            </c-card>
+          </div>
+        </ng-template>
+        >
+        <ng-template
+          cTemplateId="tableData"
+          let-columnName="columnName"
+          let-item="item"
+          let-tdContent="tdContent"
+        >
+          <td>
+            <ng-container [ngSwitch]="columnName">
+              <ng-container *ngSwitchDefault>
+                {{ tdContent }}
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'Actions'" class="py-2">
+                <button
+                  cButton
+                  color="primary"
+                  size="sm"
+                  [cModalToggle]="GLDetailsModal.id"
+                  (click)="getdetails(item)"
+                  variant="outline"
+                >
+                  Details
+                </button>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'isSync'" [ngSwitch]="tdContent">
+                <c-form-check [switch]="true">
+                  <input
+                    cFormCheckInput
+                    type="checkbox"
+                    [checked]="tdContent"
+                    disabled
+                  />
+                </c-form-check>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'CreatedOnUtc'">
+                <div class="text-center">
+                  {{ tdContent }}
+                </div>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'Number'">
+                <div class="text-end">
+                  {{ tdContent }}
+                </div>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'Id'">
+                <div class="text-center">
+                  {{ tdContent }}
+                </div>
+              </ng-container>
+            </ng-container>
+          </td>
+        </ng-template>
+      </c-smart-table>
+    </c-card-body>
+</c-card>

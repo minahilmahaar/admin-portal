@@ -155,40 +155,40 @@ export class ClientslogsComponent {
   Columns = [
   {
     key: 'ModuleName',
-    label: 'Module Name',
+    label: 'Column',
     filter: false,
     sorter: false,
   },
   {
     key: 'ActionName',
-    label: 'Action Name',
+    label: 'Column',
     filter: false,
     sorter: false,
   },
   {
     key: 'RMHID',
-    label: 'RMH ID',
+    label: 'Column',
     filter: false,
     sorter: false,
     _style: { width: '7%' },
   },
   {
     key: 'ACDescription',
-    label: 'Description',
+    label: 'Column',
     filter: false,
     sorter: false,
   },
 
   {
     key: 'IsActive',
-    label: 'Status',
+    label: 'Column',
     filter: false,
     sorter: false,
   },
 
   {
     key: 'CreatedOnUTC',
-    label: 'Created On',
+    label: 'Column',
     filter: false,
     sorter: false,
     _style: { width: '16%' },

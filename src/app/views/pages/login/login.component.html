@@ -5,14 +5,26 @@
         <c-card-group>
           <c-card class="p-4">
             <c-card-body>
-              <form cForm>
+              <form cForm
+              (ngSubmit)="loginFormData(EmailAddress.value, Password.value)"
+                [validated]="customStylesValidated"
+                novalidate
+                class="needs-validation"
+              >
                 <h1>Login</h1>
                 <p class="text-body-secondary">Sign In to your account</p>
                 <c-input-group class="mb-3">
                   <span cInputGroupText>
                     <svg cIcon name="cilUser"></svg>
                   </span>
-                  <input autoComplete="username" cFormControl placeholder="Username" />
+
+                  <input 
+                  #EmailAddress 
+                  cFormControl 
+                  placeholder="Email Address"
+                  required 
+                  />
+
                 </c-input-group>
                 <c-input-group class="mb-4">
                   <span cInputGroupText>
@@ -21,15 +33,15 @@
                   <input
                     autoComplete="current-password"
                     cFormControl
+                    #Password
                     placeholder="Password"
                     type="password"
+                    required
                   />
                 </c-input-group>
                 <c-row>
                   <c-col xs="6">
-                    <button cButton class="px-4" color="primary">
-                      Login
-                    </button>
+                    <button cLoadingButton [loading]="loading[0]" cButton disabledOnLoading class="px-4" type="submit" color="primary">Login</button>
                   </c-col>
                   <c-col class="text-right" xs="6">
                     <button cButton class="px-0" color="link">

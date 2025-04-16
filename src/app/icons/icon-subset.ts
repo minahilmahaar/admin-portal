@@ -135,7 +135,8 @@ import {
   cilTruck,
   cilDataTransferDown,
   cilArrowThickFromTop,
-  cilBraille
+  cilBraille,
+  cilUserPlus
 
 
 
@@ -283,7 +284,8 @@ export const iconSubset = {
   cilArrowThickFromTop,
   cilBraille,
   cilFace,
-  cilFingerprint
+  cilFingerprint,
+  cilUserPlus
   
 };
 
@@ -417,6 +419,7 @@ export enum IconSubset {
   cilArrowThickFromTop = 'cilArrowThickFromTop',
   cilBraille = 'cilBraille',
   cilFace = 'CilFace',
-  cilFingerprint = 'cilFingerprint'
+  cilFingerprint = 'cilFingerprint',
+  cilUserPlus = 'cilUserPlus'
 }
 

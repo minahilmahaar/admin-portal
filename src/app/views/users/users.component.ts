@@ -42,7 +42,13 @@ import {
   AlertHeadingDirective,
   AlertLinkDirective,
   ButtonCloseDirective,
-  LoadingButtonComponent
+  LoadingButtonComponent,
+  ModalBodyComponent,
+  ModalComponent,
+  ModalFooterComponent,
+  ModalHeaderComponent,
+  ModalTitleDirective,
+  ModalToggleDirective
 } from '@coreui/angular-pro';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
@@ -61,7 +67,6 @@ import { GlobalobjectService } from '../../globalobject.service';
     CardModule,
     FormsModule,
     ReactiveFormsModule,
-    ButtonDirective,
     CollapseDirective,
     SmartTableComponent,
     TemplateIdDirective,
@@ -96,6 +101,14 @@ import { GlobalobjectService } from '../../globalobject.service';
     DropdownComponent,
     DropdownToggleDirective,
     DropdownMenuDirective,
+    ButtonCloseDirective,
+    ButtonDirective,
+    ModalBodyComponent,
+    ModalComponent,
+    ModalFooterComponent,
+    ModalHeaderComponent,
+    ModalTitleDirective,
+    ModalToggleDirective
     ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
@@ -125,7 +138,15 @@ export class UsersComponent {
       SelectOnlyOne: boolean = false;
       SelectedMapping: any;
       unfilterdData: any[] = [];
+      customStylesValidated = false;
       //#endregionVariables Declaration
+
+      usersData: any[] = [
+        { Name: false, Email: 1, Column: 'User ID', CompanyName: 'Company Name', CreatedOnUtc: 'Created On UTC', 'Column 2': 'Column2', 'Column 1': 'Column1' },
+
+      ];
+
+
       CustomersColumns = [
         {
           key: 'isSync',
@@ -186,4 +207,41 @@ export class UsersComponent {
       ];
     
       CustomersData = [];
+
+
+      async AddUser( 
+        // EmailAddress.value, Password.value, UserName.value, UserDisplayName.value, Address.value, MobilePhoneNumber.value
+        EmailAddress: any, Password: any, UserName: any, UserDisplayName: any, Address: any, MobilePhoneNumber: any
+      ) {
+
+        // {
+        //   "EmailAddress": "<string>",
+        //   "MobilePhoneNumber": "<string>",
+        //   "Password": "<string>",
+        //   "UserTypes_Id": "<long>",
+        //   "UserName": "<string>",
+        //   "FirstName": "<string>",
+        //   "LastName": "<string>",
+        //   "UserDisplayName": "<string>",
+        //   "Address": "<string>",
+        //   "Picture": "<string>",
+        //   "SendEmails": "<boolean>"
+        // }
+        
+        var body= {
+          EmailAddress: EmailAddress,
+          MobilePhoneNumber: MobilePhoneNumber,
+          Password: Password,
+          UserTypes_Id: 1,
+          UserName: UserName,
+          FirstName: 'string',
+          LastName: 'string',
+          UserDisplayName: UserDisplayName,
+          Address: Address,
+          Picture: 'string',
+          SendEmails: true,
+        };
+        console.log(body);
+
+      }
 }

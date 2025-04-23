@@ -1,1 +1,52 @@
-<p>queryscreen works!</p>
+<c-toaster style="margin-top: 115px" placement="top-end" position="fixed">
+    <c-toast
+      [autohide]="false"
+      [fade]="false"
+      [visible]="showToast"
+      color="{{ ToastColor }}"
+      #toast="cToast"
+    >
+      <c-toast-body style="color: white">{{ ToastMessage }}</c-toast-body>
+    </c-toast>
+  </c-toaster>
+
+  <div class="d-flex justify-content-center">
+    <c-card class="w-50 mb-4">
+      <c-card-body>
+  
+        <form
+        cForm class="row g-3"
+        [formGroup]="myform"
+        (ngSubmit)="OnFormSubmitted()"
+        
+      >
+      <c-col [md]="6">
+        <label cLabel for="inputState">Customer:</label>
+        <select cSelect id="Customer">
+          <option>Select Customer</option>
+          <option>...</option>
+        </select>
+      </c-col>
+
+    <c-col [xs]="6">
+      <label cLabel for="Database">Database:</label>
+      <select cSelect id="Database">
+        <option>Select Database</option>
+        <option>...</option>
+      </select>
+    </c-col>
+    <c-col [xs]="12">
+      <label cLabel for="APIURL">Query:</label>
+      <textarea aria-label="With textarea" rows="15" cFormControl></textarea>
+    </c-col>
+
+    <c-col [xs]="12" class="d-flex justify-content-end">
+        <button cButton type="submit">
+            <svg cIcon name="cilSave"></svg>
+            Save</button>
+      </c-col>
+
+    </form>
+        </c-card-body>
+        </c-card>
+  </div>

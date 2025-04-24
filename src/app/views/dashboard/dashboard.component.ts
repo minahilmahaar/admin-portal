@@ -25,7 +25,7 @@ import { IconDirective } from '@coreui/icons-angular';
 import { WidgetsBrandComponent } from '../widgets/widgets-brand/widgets-brand.component';
 import { WidgetsDropdownComponent } from '../widgets/widgets-dropdown/widgets-dropdown.component';
 import { DashboardChartsData, IChartProps } from './dashboard-charts-data';
-
+import { GlobalobjectService } from '../../globalobject.service';
 interface IUser {
   name: string;
   state: string;
@@ -146,9 +146,17 @@ export class DashboardComponent implements OnInit {
     trafficRadio: new FormControl('Month')
   });
 
+  constructor (
+    private GlobalobjectService: GlobalobjectService,
+  ){
+    
+  }
   ngOnInit(): void {
+
     this.initCharts();
     this.updateChartOnColorModeChange();
+
+    console.log(this.GlobalobjectService.AccessToken);
   }
 
   initCharts(): void {

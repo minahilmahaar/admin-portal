@@ -6,7 +6,7 @@
           <c-card class="p-4">
             <c-card-body>
               <form cForm
-              (ngSubmit)="loginFormData(EmailAddress.value, Password.value)"
+              (ngSubmit)="loginFormData(EmailAddress.value, Password.value, captchaToken)"
                 [validated]="customStylesValidated"
                 novalidate
                 class="needs-validation"
@@ -39,6 +39,17 @@
                     required
                   />
                 </c-input-group>
+
+                <c-input-group class="mb-4">
+
+                <re-captcha
+                  #captchaRef="reCaptcha"
+                  siteKey="6Ld2PSMrAAAAAOtqgfhNYQ0rTYLFhEqDTyllGTaV"
+                  (resolved)="handleCaptcha($event)">
+                </re-captcha>
+
+                </c-input-group>
+
                 <c-row>
                   <c-col xs="6">
                     <button cLoadingButton [loading]="loading[0]" cButton disabledOnLoading class="px-4" type="submit" color="primary">Login</button>
@@ -52,20 +63,7 @@
               </form>
             </c-card-body>
           </c-card>
-          <c-card [ngStyle]="{'minWidth.%': 44}" class="text-white bg-primary py-5">
-            <c-card-body class="text-center">
-              <div>
-                <h2>Sign up</h2>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                  tempor incididunt ut labore et dolore magna aliqua.
-                </p>
-                <button [active]="true" cButton class="mt-3" color="primary" routerLink="/register">
-                  Register Now!
-                </button>
-              </div>
-            </c-card-body>
-          </c-card>
+          
         </c-card-group>
       </c-col>
     </c-row>

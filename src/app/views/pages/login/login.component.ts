@@ -15,25 +15,25 @@ import {
   FormControlDirective,
   ButtonDirective,
 } from '@coreui/angular-pro';
-
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-
 import {
   LoadingButtonComponent,
   ToastModule,
-  ToastComponent,
 } from '@coreui/angular-pro';
 import { Router } from '@angular/router';
 import { GlobalobjectService } from '../../../globalobject.service';
 import { LoginService } from './login.service';
-
+import { NgxCaptchaModule } from 'ngx-captcha';
+import { ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   standalone: true,
-  imports: [NgStyle,
+  imports: [
+    NgxCaptchaModule,
+    NgStyle,
     LoadingButtonComponent,
     ReactiveFormsModule,
     FormsModule,
@@ -54,93 +54,89 @@ import { LoginService } from './login.service';
   ]
 })
 export class LoginComponent {
+
+  //#region Variables
+
+
+  showToast = false;
+  ToastMessage = '';
+  ToastColor = '';
+  customStylesValidated = false;
+  showPassword = false;
+  loginError = '';
+  loading: any[] = [];
+  captchaToken: string = '';
+  captchaSiteKey: string = '6Ld2PSMrAAAAAOtqgfhNYQ0rTYLFhEqDTyllGTaV';
+  //#endregion Variables
+  
   constructor(
     private router: Router,
     private GlobalobjectService: GlobalobjectService,
     private LoginService: LoginService
   ) {}
 
-  ngOnInit(): void {
-    // if (this.GlobalobjectService.UserLoginResponse != null) {
-    //   this.router.navigate(['/dashboard']);
-    // }
-  }
-
-    //#region Toaster Variables
-    showToast: boolean = false;
-    ToastMessage = '';
-    ToastColor = '';
-    //#endregion
-
-    customStylesValidated = false;
-  showPassword: boolean = false;
-  loginError: string = '';
-  public loading = new Array(4);
-
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
-  onChange(changeEvent: boolean, idx: number): void {
-    ///console.log(changeEvent, idx)
-  }
+  async loginFormData(email: string, password: string, captcha: string): Promise<void> {
 
-  async loginFormData(EmailAddress: any, Password: any) {
+    if (!captcha) {
+      alert("Please complete the captcha.");
+      return;
+    }
+
+    this.customStylesValidated = true;
+
+    if (!email || !password) {
+      this.displayError('Please Enter Email Address And Password.');
+      return;
+    }
+
+    const body = { EmailAddress: email, Password: password };
+
+    // Simulate loading
     this.loading[0] = setTimeout(() => {
       this.loading[0] = undefined;
     }, 7000);
 
-    this.customStylesValidated = true;
+    await this.LoginService.login(body).subscribe(
+      (res: any) => {
+        clearTimeout(this.loading[0]);
 
-    if (!EmailAddress || !Password) {
-      this.loginError = 'Please Enter Email Address And Password.';
-      setTimeout(() => {
-        this.loginError = '';
-      }, 3000);
-      return;
-    } else {
-      
-      var Body = {
-        EmailAddress: EmailAddress,
-        Password: Password,
-      };
+        console.log('Successully Logged In, Redirecting to Dashboard...');
+        this.GlobalobjectService.AccessToken = res.AccessToken;
+        this.GlobalobjectService.RefreshToken = res.RefreshToken;
+        this.GlobalobjectService.EmailAddress = res.EmailAddress;
+        
+        // show toaster
+        this.showToast = true;
+        this.ToastMessage = 'Login Successful! Redirecting...';
+        this.ToastColor = 'success';
+        setTimeout(() => {
+          this.showToast = false;
+        }, 3000);
 
-      console.log(Body);
-      this.router.navigate(['/dashboard']);
 
-      // await this.LoginService.login(Body).subscribe((res: any) => {
-      //   clearTimeout(this.loading[0]);
-      //   console.log(res.data.id);
-      //   if (res.apiStatus.isSuccess) {
-      //     this.showToast = true;
-      //     this.ToastMessage = 'Login Successful.';
-      //     this.ToastColor = 'success';
 
-      //     sessionStorage.setItem('login', 'true');
-      //     this.GlobalobjectService.UserLoginResponse = res;
-      //     this.GlobalobjectService.UserID = res.data.id;
-      //     localStorage.setItem('loginID', 'true');
-      //     if (res.data.isConfigured) {
-      //       this.router.navigate(['/dashboard']);
-      //     } else {
-      //       this.router.navigate(['/Integrationsettings']);
-      //     }
-      //   } else {
-      //     this.showToast = true;
-      //     this.ToastMessage = 'Invalid Username Or Password';
-      //     this.ToastColor = 'danger';
-
-      //     this.loginError = 'Invalid Username Or Password';
-      //     console.log(this.loginError);
-      //     localStorage.setItem('loginID', 'false');
-      //     setTimeout(() => {
-      //       this.loginError = '';
-      //     }, 3000);
-
-      //     this.router.navigate(['/login']);
-      //   }
-      // });
-    }
+        this.router.navigate(['/dashboard']);
+      },
+      (error) => {
+        clearTimeout(this.loading[0]);
+        this.displayError('Login failed. Please try again.');
+      }
+    );
   }
 
+  @ViewChild('captchaRef') captchaRef!: LoginComponent;
+    handleCaptcha(token: string) {
+      console.log('Captcha resolved with token: ', token);
+    }
+
+  private displayError(message: string): void {
+    this.loginError = message;
+    setTimeout(() => {
+      this.loginError = '';
+    }, 3000);
+  }
 }

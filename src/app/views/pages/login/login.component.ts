@@ -25,17 +25,21 @@ import { GlobalobjectService } from '../../../globalobject.service';
 import { LoginService } from './login.service';
 import { NgxCaptchaModule } from 'ngx-captcha';
 import { ViewChild } from '@angular/core';
-
+import { CaptchaService } from './captcha.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { RecaptchaModule } from 'ng-recaptcha';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
   standalone: true,
   imports: [
-    NgxCaptchaModule,
+    CommonModule,
+    ReactiveFormsModule, 
+    RecaptchaModule,
     NgStyle,
     LoadingButtonComponent,
-    ReactiveFormsModule,
     FormsModule,
     ContainerComponent,
     RowComponent,
@@ -51,6 +55,7 @@ import { ViewChild } from '@angular/core';
     FormControlDirective,
     ButtonDirective,
     ToastModule,
+    NgxCaptchaModule,
   ]
 })
 export class LoginComponent {
@@ -68,18 +73,53 @@ export class LoginComponent {
   captchaToken: string = '';
   captchaSiteKey: string = '6Ld2PSMrAAAAAOtqgfhNYQ0rTYLFhEqDTyllGTaV';
   //#endregion Variables
-  
-  constructor(
+  loginForm: FormGroup;
+  captchaResolved: boolean = false;
+
+
+  // constructor(
+
+  // ) {}
+
+  constructor(     
     private router: Router,
     private GlobalobjectService: GlobalobjectService,
-    private LoginService: LoginService
-  ) {}
+    private LoginService: LoginService,
+    private recaptcha: CaptchaService,
+    private fb: FormBuilder) {
+    this.loginForm = this.fb.group({
+      username: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      recaptcha: ['', Validators.required]
+    });
+  }
+
+
+  onCaptchaResolved(response: string) {
+    this.captchaResolved = !!response;
+    this.loginForm.get('recaptcha')?.setValue(response);
+  }
+
+  onSubmit() {
+    if (this.loginForm.valid) {
+      const formData = this.loginForm.value;
+      console.log('Form submitted with:', formData);
+      
+      // Here you would typically send the data to your backend
+      // Along with the recaptcha response for verification
+    } else {
+      this.loginForm.markAllAsTouched();
+    }
+  }
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
   async loginFormData(email: string, password: string, captcha: string): Promise<void> {
+
+    const token = await this.recaptcha.execute();
+    console.log('reCAPTCHA token:', token);
 
     if (!captcha) {
       alert("Please complete the captcha.");
@@ -127,8 +167,6 @@ export class LoginComponent {
       }
     );
   }
-
-  @ViewChild('captchaRef') captchaRef!: LoginComponent;
     handleCaptcha(token: string) {
       console.log('Captcha resolved with token: ', token);
     }

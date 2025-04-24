@@ -211,37 +211,49 @@ export class UsersComponent {
 
       async AddUser( 
         // EmailAddress.value, Password.value, UserName.value, UserDisplayName.value, Address.value, MobilePhoneNumber.value
-        EmailAddress: any, Password: any, UserName: any, UserDisplayName: any, Address: any, MobilePhoneNumber: any
+         ///FirstName.value, LastName.value
+        EmailAddress: any, FirstName: any, LastName: any, 
       ) {
-
-        // {
-        //   "EmailAddress": "<string>",
-        //   "MobilePhoneNumber": "<string>",
-        //   "Password": "<string>",
-        //   "UserTypes_Id": "<long>",
-        //   "UserName": "<string>",
-        //   "FirstName": "<string>",
-        //   "LastName": "<string>",
-        //   "UserDisplayName": "<string>",
-        //   "Address": "<string>",
-        //   "Picture": "<string>",
-        //   "SendEmails": "<boolean>"
-        // }
         
-        var body= {
+        // UserTypes_Id            = YES => 3 Hard Code
+        // Client_Id               = YES => (Cline ID, who is login)
+        // EmailAddress            = YES
+        // UserName                = YES => EmailAddress
+        // FirstName               = YES
+        // LastName                = YES
+        // UserDisplayName         = YES => FirstName + " " + LastName
+        // aspUserID               = 
+        // MobilePhoneNumber       = 
+        // Address                 = 
+        // IsEmailVerified         = 0
+        // IsMobilePhoneVerified   = 0
+        // IsActive                = 0
+        // IsApproved              = 0
+        // Picture                 = .
+        // FailedLoginAttempts     = 0
+
+        var body = {
+          UserTypes_Id: 3,
+          Client_Id: 0, ///this.GlobalobjectService.ClientID, // Have to fix
           EmailAddress: EmailAddress,
-          MobilePhoneNumber: MobilePhoneNumber,
-          Password: Password,
-          UserTypes_Id: 1,
-          UserName: UserName,
-          FirstName: 'string',
-          LastName: 'string',
-          UserDisplayName: UserDisplayName,
-          Address: Address,
-          Picture: 'string',
-          SendEmails: true,
+          UserName: EmailAddress,
+          FirstName: FirstName,
+          LastName: LastName,
+          UserDisplayName: FirstName + ' ' + LastName,
+          aspUserID: null,
+          MobilePhoneNumber: null,
+          Address: null,
+          IsEmailVerified: 0,
+          IsMobilePhoneVerified: 0,
+          IsActive: 0,
+          IsApproved: 0,
+          Picture: null,
+          FailedLoginAttempts: 0,
         };
+
+       
         console.log(body);
 
       }
+
 }

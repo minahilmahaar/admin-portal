@@ -12,9 +12,17 @@ import { provideHttpClient } from '@angular/common/http';
 import { DropdownModule, SidebarModule } from '@coreui/angular-pro';
 import { IconSetService } from '@coreui/icons-angular';
 import { routes } from './app.routes';
+import { RecaptchaFormsModule, RecaptchaModule, RecaptchaSettings, RECAPTCHA_SETTINGS } from 'ng-recaptcha';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    importProvidersFrom(RecaptchaModule, RecaptchaFormsModule),
+      {
+        provide: RECAPTCHA_SETTINGS,
+        useValue: {
+          siteKey: 'YOUR_SITE_KEY', // Replace with your actual site key
+        } as RecaptchaSettings,
+      },
     provideHttpClient(),
     provideRouter(routes,
       withRouterConfig({

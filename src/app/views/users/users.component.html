@@ -212,33 +212,21 @@
 
     <form cForm class="row g-3"
     
-    (ngSubmit)="AddUser(EmailAddress.value, Password.value, UserName.value, UserDisplayName.value, Address.value, MobilePhoneNumber.value)"
+    (ngSubmit)="AddUser(EmailAddress.value, FirstName.value, LastName.value)"
     >
     
     <c-col [md]="6">
-        <label cLabel for="UserName">User Name:</label>
-        <input cFormControl required id="UserName" #UserName type="UserName" />
-      </c-col>
-      <c-col [md]="6">
-        <label cLabel for="UserDisplayName">User Display Name:</label>
-        <input cFormControl required id="UserDisplayName" #EmailAddress type="UserDisplayName" #UserDisplayName />
-      </c-col>
-      <c-col [md]="6">
-        <label cLabel for="EmailAddress">Email Address:</label>
-        <input cFormControl required id="EmailAddress" type="EmailAddress" #EmailAddress />
-      </c-col>
-      <c-col [md]="6">
-        <label cLabel for="Password">Password:</label>
-        <input cFormControl required id="Password" type="Password" #Password />
-      </c-col>
-      <c-col [md]="6">
-        <label cLabel for="Address">Address:</label>
-        <input cFormControl required id="Address" #Address />
-      </c-col>
-      <c-col [md]="6">
-        <label cLabel for="MobilePhoneNumber">Phone Number:</label>
-        <input cFormControl required id="MobilePhoneNumber"#MobilePhoneNumber />
-      </c-col>
+      <label cLabel for="FirstName">First Name:</label>
+      <input cFormControl required id="FirstName" #FirstName type="FirstName" />
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel for="LastName">Last Name:</label>
+      <input cFormControl required id="LastName" #LastName type="LastName" />
+    </c-col>
+    <c-col [md]="12">
+      <label cLabel for="EmailAddress">Email Address:</label>
+      <input cFormControl required id="EmailAddress" type="EmailAddress" #EmailAddress />
+    </c-col>
 
       <c-col [md]="12" class="d-flex justify-content-end">
       <button cButton color="primary" type="submit" ><svg cIcon name="cilSave" ></svg> Save</button>

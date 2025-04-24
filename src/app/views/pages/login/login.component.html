@@ -5,61 +5,56 @@
         <c-card-group>
           <c-card class="p-4">
             <c-card-body>
-              <form cForm
-              (ngSubmit)="loginFormData(EmailAddress.value, Password.value, captchaToken)"
-                [validated]="customStylesValidated"
-                novalidate
-                class="needs-validation"
-              >
-                <h1>Login</h1>
-                <p class="text-body-secondary">Sign In to your account</p>
-                <c-input-group class="mb-3">
-                  <span cInputGroupText>
-                    <svg cIcon name="cilUser"></svg>
-                  </span>
-
+              <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+                <h2>Login</h2>
+                
+                <div class="form-group">
+                  <label for="username">Email</label>
                   <input 
-                  #EmailAddress 
-                  cFormControl 
-                  placeholder="Email Address"
-                  required 
-                  />
-
-                </c-input-group>
-                <c-input-group class="mb-4">
-                  <span cInputGroupText>
-                    <svg cIcon name="cilLockLocked"></svg>
-                  </span>
-                  <input
-                    autoComplete="current-password"
-                    cFormControl
-                    #Password
-                    placeholder="Password"
-                    type="password"
-                    required
-                  />
-                </c-input-group>
-
-                <c-input-group class="mb-4">
-
-                <re-captcha
-                  #captchaRef="reCaptcha"
-                  siteKey="6Ld2PSMrAAAAAOtqgfhNYQ0rTYLFhEqDTyllGTaV"
-                  (resolved)="handleCaptcha($event)">
-                </re-captcha>
-
-                </c-input-group>
-
-                <c-row>
-                  <c-col xs="6">
-                    <button cLoadingButton [loading]="loading[0]" cButton disabledOnLoading class="px-4" type="submit" color="primary">Login</button>
-                  </c-col>
-                  <c-col class="text-right" xs="6">
-                    <button cButton class="px-0" color="link">
-                      Forgot password?
-                    </button>
-                  </c-col>
-                </c-row>
+                    id="username" 
+                    type="email" 
+                    formControlName="username" 
+                    placeholder="Enter your email"
+                    [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+                  <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error-message">
+                    <div *ngIf="loginForm.get('username')?.errors?.['required']">Email is required</div>
+                    <div *ngIf="loginForm.get('username')?.errors?.['email']">Please enter a valid email</div>
+                  </div>
+                </div>
+              
+                <div class="form-group">
+                  <label for="password">Password</label>
+                  <input 
+                    id="password" 
+                    type="password" 
+                    formControlName="password" 
+                    placeholder="Enter your password"
+                    [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                  <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
+                    <div *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</div>
+                    <div *ngIf="loginForm.get('password')?.errors?.['minlength']">
+                      Password must be at least 6 characters
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="form-group">
+                  <re-captcha 
+                    formControlName="recaptcha"
+                    (resolved)="onCaptchaResolved($event)"
+                    siteKey="6LcwiCMrAAAAACv_PtQ9ozR6dySL3M8TpA09BWc5 "> <!-- This can be omitted since it's in the provider -->
+                  </re-captcha>
+                  <div *ngIf="loginForm.get('recaptcha')?.invalid && loginForm.get('recaptcha')?.touched" class="error-message">
+                    Please complete the reCAPTCHA
+                  </div>
+                </div>
+              
+                <button 
+                  type="submit" 
+                  class="submit-btn" 
+                  [disabled]="!loginForm.valid">
+                  Login
+                </button>
               </form>
             </c-card-body>
           </c-card>

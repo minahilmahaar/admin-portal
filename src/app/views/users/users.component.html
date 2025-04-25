@@ -1,6 +1,6 @@
 <c-card>
     <c-card-body>
-      <button type="button" class="btn btn-primary" [cModalToggle]="verticallyCenteredModal.id"><svg cIcon name="cilUserPlus"></svg> Add User</button>
+      <button type="button" class="btn btn-primary" [cModalToggle]="AddUserModal.id"><svg cIcon name="cilUserPlus"></svg> Add User</button>
         <!-- <c-smart-table
         [activePage]="1"
         [columnSorter]="true"
@@ -203,10 +203,10 @@
 </c-card>
 
 
-<c-modal #verticallyCenteredModal alignment="center" id="verticallyCenteredModal">
+<c-modal #AddUserModal alignment="center" id="AddUserModal">
   <c-modal-header>
     <h5 cModalTitle>Add User</h5>
-    <button [cModalToggle]="verticallyCenteredModal.id" cButtonClose></button>
+    <button [cModalToggle]="AddUserModal.id" cButtonClose></button>
   </c-modal-header>
   <c-modal-body>
 
@@ -229,7 +229,7 @@
     </c-col>
 
       <c-col [md]="12" class="d-flex justify-content-end">
-      <button cButton color="primary" type="submit" ><svg cIcon name="cilSave" ></svg> Save</button>
+      <button cButton color="primary" type="submit" [cModalToggle]="AddUserModal.id" ><svg cIcon name="cilSave" ></svg> Save</button>
       </c-col>
 
     </form>

@@ -5,7 +5,7 @@ import { EventEmitter } from '@angular/core';
 })
 export class GlobalobjectService {
   public Version = '0.0.0.0';
-  public UserID: any;
+  public Client_Id: any;
   public APIURL: string = 'http://x2xdev.accsoft.com:3005';
   public RefreshToken: any;
   public AccessToken: any;

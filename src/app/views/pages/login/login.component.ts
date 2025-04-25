@@ -29,6 +29,8 @@ import { CaptchaService } from './captcha.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RecaptchaModule } from 'ng-recaptcha';
+import { CookieService } from 'ngx-cookie-service';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -76,21 +78,17 @@ export class LoginComponent {
   loginForm: FormGroup;
   captchaResolved: boolean = false;
 
-
-  // constructor(
-
-  // ) {}
-
-  constructor(     
+  constructor(    
+    private cookieService: CookieService, 
     private router: Router,
     private GlobalobjectService: GlobalobjectService,
     private LoginService: LoginService,
     private recaptcha: CaptchaService,
     private fb: FormBuilder) {
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      recaptcha: ['', Validators.required]
+      EmailAddress: ['', [Validators.required, Validators.email]],
+      Password: ['', [Validators.required, Validators.minLength(6)]],
+      ///recaptcha: ['', Validators.required]
     });
   }
 
@@ -100,13 +98,74 @@ export class LoginComponent {
     this.loginForm.get('recaptcha')?.setValue(response);
   }
 
-  onSubmit() {
+  async onSubmit() {
+
+    //start loading
+    this.customStylesValidated = false;
+    this.loading[0] = setTimeout(() => {
+      this.loading[0] = undefined;
+    }, 7000);
+    //end loading
+
     if (this.loginForm.valid) {
+
       const formData = this.loginForm.value;
-      console.log('Form submitted with:', formData);
-      
-      // Here you would typically send the data to your backend
-      // Along with the recaptcha response for verification
+    
+      await this.LoginService.login(formData).subscribe(
+        (res: any) => {
+          clearTimeout(this.loading[0]);
+
+          if(res.APIStatus.IsSuccess)
+          {
+            this.GlobalobjectService.AccessToken = res.AccessToken;
+            this.GlobalobjectService.RefreshToken = res.RefreshToken;
+            this.GlobalobjectService.EmailAddress = res.EmailAddress;
+
+            
+            const expires = new Date(new Date().getTime() + 15 * 60 * 1000);
+            this.cookieService.set('AccessToken', res.AccessToken, expires, '/');
+            this.cookieService.set('RefreshToken', res.RefreshToken, expires, '/');
+            this.cookieService.set('Client_Id', res.Data.Client_Id, expires, '/');
+
+            //console.log(res.Data.Client_Id);
+
+            this.router.navigate(['/dashboard']);
+            //console.log(res.APIStatus);
+          }
+          else {
+
+          this.showToast = true;
+          this.ToastMessage = res.APIStatus.Message;
+          this.ToastColor = 'danger';
+
+          console.log(res);
+          
+
+          }
+        
+          // show toaster
+          // this.showToast = true;
+          // this.ToastMessage = 'Login Successful! Redirecting...';
+          // this.ToastColor = 'success';
+
+          setTimeout(() => {
+            this.showToast = false;
+          }, 3000);
+  
+  
+          ///this.router.navigate(['/dashboard']);
+        },
+        (error) => {
+          clearTimeout(this.loading[0]);
+          //show toaster
+          this.showToast = true;
+          this.ToastMessage = 'Login Failed! Please try again.';
+          this.ToastColor = 'danger';
+          setTimeout(() => {
+            this.showToast = false;
+          }, 3000);
+        }
+      );
     } else {
       this.loginForm.markAllAsTouched();
     }
@@ -167,9 +226,10 @@ export class LoginComponent {
       }
     );
   }
-    handleCaptcha(token: string) {
-      console.log('Captcha resolved with token: ', token);
-    }
+
+  handleCaptcha(token: string) {
+    console.log('Captcha resolved with token: ', token);
+  }
 
   private displayError(message: string): void {
     this.loginError = message;
@@ -177,4 +237,6 @@ export class LoginComponent {
       this.loginError = '';
     }, 3000);
   }
+
+
 }

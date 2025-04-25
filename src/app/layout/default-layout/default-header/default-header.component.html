@@ -68,10 +68,10 @@
       </button>
       <ul cDropdownMenu class="pt-0 w-auto">
         <li>
-          <a cDropdownItem routerLink="/login">
+            <a cDropdownItem (click)="logout()" routerLink="/login">
             <svg cIcon class="me-2" name="cilAccountLogout"></svg>
             Logout
-          </a>
+            </a>
         </li>
       </ul>
     </c-dropdown>

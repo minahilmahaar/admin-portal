@@ -1,7 +1,7 @@
 import { NgStyle, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-
+import { CookieService } from 'ngx-cookie-service';
 import {
   AvatarComponent,
   BadgeComponent,
@@ -50,7 +50,7 @@ export class DefaultHeaderComponent extends HeaderComponent {
     return this.colorModes.find(mode => mode.name === currentMode)?.icon ?? 'cilSun';
   });
 
-  constructor() {
+  constructor(private CookieService: CookieService) {
     super();
   }
 
@@ -130,5 +130,11 @@ export class DefaultHeaderComponent extends HeaderComponent {
     { id: 3, title: 'Add new layouts', value: 75, color: 'info' },
     { id: 4, title: 'Angular Version', value: 100, color: 'success' }
   ];
+
+  logout()
+  {
+    this.CookieService.delete('AccessToken', '/');
+    this.CookieService.delete('RefreshToken', '/');
+  }
 
 }

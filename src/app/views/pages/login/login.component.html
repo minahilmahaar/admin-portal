@@ -1,3 +1,15 @@
+<c-toaster style="margin-top: 115px" placement="top-end" position="fixed">
+  <c-toast
+    [autohide]="false"
+    [fade]="false"
+    [visible]="showToast"
+    color="{{ ToastColor }}"
+    #toast="cToast"
+  >
+    <c-toast-body style="color: white">{{ ToastMessage }}</c-toast-body>
+  </c-toast>
+</c-toaster>
+
 <div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
   <c-container breakpoint="md">
     <c-row class="justify-content-center">
@@ -6,23 +18,61 @@
           <c-card class="p-4">
             <c-card-body>
               <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-                <h2>Login</h2>
-                
-                <div class="form-group">
-                  <label for="username">Email</label>
+                <h1>Login</h1>
+                <p class="text-body-secondary">Sign In to your account</p>
+
+                <!-- Email -->
+                <div class="mb-3">
+
+                <c-input-group >
+                  <span cInputGroupText>
+                    <svg cIcon name="cilUser"></svg>
+                  </span>
+
                   <input 
-                    id="username" 
-                    type="email" 
-                    formControlName="username" 
-                    placeholder="Enter your email"
-                    [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
-                  <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error-message">
-                    <div *ngIf="loginForm.get('username')?.errors?.['required']">Email is required</div>
-                    <div *ngIf="loginForm.get('username')?.errors?.['email']">Please enter a valid email</div>
-                  </div>
+                  id="EmailAddress" 
+                  type="email" 
+                  formControlName="EmailAddress" 
+                  placeholder="Enter your email"
+                  cFormControl 
+                  required
+                  [class.is-invalid]="loginForm.get('EmailAddress')?.invalid && loginForm.get('EmailAddress')?.touched"
+                  autocomplete="off"
+                  />
+                </c-input-group>
+
+                <div *ngIf="loginForm.get('EmailAddress')?.invalid && loginForm.get('EmailAddress')?.touched" class="error-message">
+                  <div *ngIf="loginForm.get('EmailAddress')?.errors?.['required']" class="text-danger d-flex justify-content-end">Email is required</div>
+                  <div *ngIf="loginForm.get('EmailAddress')?.errors?.['email']" class="text-danger d-flex justify-content-end">Please enter a valid email</div>
                 </div>
-              
-                <div class="form-group">
+              </div>
+
+              <!-- Password Field -->
+              <div class="mb-3">
+
+                <c-input-group>
+                  <span cInputGroupText>
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
+                  <input
+                    id="Password" 
+                    type="password" 
+                    formControlName="Password" 
+                    placeholder="Enter your Password"
+                    [class.is-invalid]="loginForm.get('Password')?.invalid && loginForm.get('Password')?.touched"
+                    cFormControl
+                    required
+                    autocomplete="off"
+                  />
+                </c-input-group>
+                <div *ngIf="loginForm.get('Password')?.invalid && loginForm.get('Password')?.touched" class="error-message">
+                  <div *ngIf="loginForm.get('Password')?.errors?.['required']" class="text-danger d-flex justify-content-end">Password is required</div>
+                  <!-- <div *ngIf="loginForm.get('password')?.errors?.['minlength']" class="text-danger d-flex justify-content-end">
+                    Password must be at least 6 characters
+                  </div> -->
+                </div>
+                </div>
+                <!-- <div class="form-group">
                   <label for="password">Password</label>
                   <input 
                     id="password" 
@@ -36,25 +86,28 @@
                       Password must be at least 6 characters
                     </div>
                   </div>
-                </div>
+                </div> -->
+
+                
               
-                <div class="form-group">
+                <c-input-group class="mb-3">
                   <re-captcha 
-                    formControlName="recaptcha"
+
+
                     (resolved)="onCaptchaResolved($event)"
                     siteKey="6LcwiCMrAAAAACv_PtQ9ozR6dySL3M8TpA09BWc5 "> <!-- This can be omitted since it's in the provider -->
                   </re-captcha>
                   <div *ngIf="loginForm.get('recaptcha')?.invalid && loginForm.get('recaptcha')?.touched" class="error-message">
                     Please complete the reCAPTCHA
                   </div>
-                </div>
+                </c-input-group>
               
-                <button 
-                  type="submit" 
-                  class="submit-btn" 
-                  [disabled]="!loginForm.valid">
-                  Login
-                </button>
+                <c-row>
+                  <c-col xs="6">
+                    <button cLoadingButton [loading]="loading[0]" cButton disabledOnLoading [disabled]="!loginForm.valid" class="px-4" type="submit" color="primary">Login</button>
+                  </c-col>
+                </c-row>
+
               </form>
             </c-card-body>
           </c-card>

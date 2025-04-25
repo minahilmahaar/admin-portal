@@ -1,38 +1,31 @@
 import { Routes } from '@angular/router';
 import { DefaultLayoutComponent, EmailLayoutComponent } from './layout';
+import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full'
+    redirectTo: 'login',
+    pathMatch: 'full',
   },
-  {
-    path: 'apps/email',
-    component: EmailLayoutComponent,
 
-    children: [
-      {
-        path: '',
-        loadChildren: () => import('./views/apps/email/routes').then((m) => m.routes)
-      }
-    ]
-  },
   {
     path: '',
     component: DefaultLayoutComponent,
     data: {
       title: ''
     },
-
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
-        loadChildren: () => import('./views/dashboard/routes').then((m) => m.routes)
+        loadChildren: () => import('./views/dashboard/routes').then((m) => m.routes),
+        canActivate: [authGuard],
       },
       {
         path: 'clients',
         loadComponent: () => import('./views/clients/clients.component').then(m => m.ClientsComponent),
+        canActivate: [authGuard],
         data: {
           title: 'Clients'
         }
@@ -40,6 +33,7 @@ export const routes: Routes = [
       {
         path: 'clientslogs',
         loadComponent: () => import('./views/clientslogs/clientslogs.component').then(m => m.ClientslogsComponent),
+        canActivate: [authGuard],
         data: {
           title: 'Clients Logs'
         }
@@ -47,6 +41,7 @@ export const routes: Routes = [
       {
         path: 'failedtransactions',
         loadComponent: () => import('./views/failedtransactions/failedtransactions.component').then(m => m.FailedtransactionsComponent),
+        canActivate: [authGuard],
         data: {
           title: 'Failed Transactions'
         }
@@ -54,6 +49,7 @@ export const routes: Routes = [
       {
         path: 'queryscreen',
         loadComponent: () => import('./views/queryscreen/queryscreen.component').then(m => m.QueryscreenComponent),
+        canActivate: [authGuard],
         data: {
           title: 'Query Screen'
         }
@@ -61,6 +57,7 @@ export const routes: Routes = [
       {
         path: 'users',
         loadComponent: () => import('./views/users/users.component').then(m => m.UsersComponent),
+        canActivate: [authGuard],
         data: {
           title: 'Users'
         }
@@ -108,6 +105,17 @@ export const routes: Routes = [
       {
         path: 'apps',
         loadChildren: () => import('./views/apps/routes').then((m) => m.routes)
+      }
+    ]
+  },
+  {
+    path: 'apps/email',
+    component: EmailLayoutComponent,
+
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./views/apps/email/routes').then((m) => m.routes)
       }
     ]
   },

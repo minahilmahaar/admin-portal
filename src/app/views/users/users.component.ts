@@ -59,6 +59,8 @@ import {
 import * as signalR from '@microsoft/signalr';
 import { IconDirective } from '@coreui/icons-angular';
 import { GlobalobjectService } from '../../globalobject.service';
+import { CookieService } from 'ngx-cookie-service';
+import { UsersService } from './users.service';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -141,6 +143,10 @@ export class UsersComponent {
       customStylesValidated = false;
       //#endregionVariables Declaration
 
+      constructor(private CookieService: CookieService, private UsersService: UsersService){
+
+      }
+
       usersData: any[] = [
         { Name: false, Email: 1, Column: 'User ID', CompanyName: 'Company Name', CreatedOnUtc: 'Created On UTC', 'Column 2': 'Column2', 'Column 1': 'Column1' },
 
@@ -210,49 +216,57 @@ export class UsersComponent {
 
 
       async AddUser( 
-        // EmailAddress.value, Password.value, UserName.value, UserDisplayName.value, Address.value, MobilePhoneNumber.value
-         ///FirstName.value, LastName.value
         EmailAddress: any, FirstName: any, LastName: any, 
       ) {
-        
-        // UserTypes_Id            = YES => 3 Hard Code
-        // Client_Id               = YES => (Cline ID, who is login)
-        // EmailAddress            = YES
-        // UserName                = YES => EmailAddress
-        // FirstName               = YES
-        // LastName                = YES
-        // UserDisplayName         = YES => FirstName + " " + LastName
-        // aspUserID               = 
-        // MobilePhoneNumber       = 
-        // Address                 = 
-        // IsEmailVerified         = 0
-        // IsMobilePhoneVerified   = 0
-        // IsActive                = 0
-        // IsApproved              = 0
-        // Picture                 = .
-        // FailedLoginAttempts     = 0
+        // {
+        //   "Client_Id": "<long>",
+        //   "EmailAddress": "<string>",
+        //   "FirstName": "<string>",
+        //   "LastName": "<string>",
+        //   "UserDisplayName": "<string>",
+        //   "UserName": "<string>",
+        //   "UserType_Id": "<long>",
+        //   "SendEmails": "<boolean>",
+        //   "Picture": "<string>"
+        // }
 
         var body = {
-          UserTypes_Id: 3,
-          Client_Id: 0, ///this.GlobalobjectService.ClientID, // Have to fix
+          UserType_Id: 1,
+          Client_Id: this.CookieService.get('Client_Id'),
           EmailAddress: EmailAddress,
           UserName: EmailAddress,
           FirstName: FirstName,
           LastName: LastName,
           UserDisplayName: FirstName + ' ' + LastName,
-          aspUserID: null,
-          MobilePhoneNumber: null,
-          Address: null,
-          IsEmailVerified: 0,
-          IsMobilePhoneVerified: 0,
-          IsActive: 0,
-          IsApproved: 0,
-          Picture: null,
-          FailedLoginAttempts: 0,
+          SendEmails: false,
+          Picture: null
         };
 
-       
         console.log(body);
+
+        //registerUser
+
+        this.UsersService.registerUser(body).subscribe((response: any) => {
+          console.log(response);
+          if (response.APIStatus.IsSuccess) {
+            this.ToastMessage = 'Record Created Successfully';
+            this.ToastColor = 'success';
+            this.showToast = true;
+
+            this.ModalLoading = false;
+
+          } else {
+            this.ToastMessage = response.APIStatus.Message;
+            this.ToastColor = 'danger';
+            this.showToast = true;
+          }
+        }, (error: any) => {
+          console.error(error);
+          this.ToastMessage = 'Error Occured While Adding User';
+          this.ToastColor = 'danger';
+          this.showToast = true;
+        });
+
 
       }
 

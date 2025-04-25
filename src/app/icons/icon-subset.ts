@@ -136,7 +136,8 @@ import {
   cilDataTransferDown,
   cilArrowThickFromTop,
   cilBraille,
-  cilUserPlus
+  cilUserPlus,
+  cilPlus
 
 
 

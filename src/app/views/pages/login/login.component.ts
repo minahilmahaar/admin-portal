@@ -74,9 +74,9 @@ export class LoginComponent {
   loading: any[] = [];
   captchaToken: string = '';
   captchaSiteKey: string = '6Ld2PSMrAAAAAOtqgfhNYQ0rTYLFhEqDTyllGTaV';
-  //#endregion Variables
   loginForm: FormGroup;
   captchaResolved: boolean = false;
+  //#endregion Variables
 
   constructor(    
     private cookieService: CookieService, 

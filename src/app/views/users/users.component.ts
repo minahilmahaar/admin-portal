@@ -210,6 +210,7 @@ export class UsersComponent implements OnInit, OnDestroy {
             this.showToast = true;
           }
           this.ModalLoading = false;
+          this.getUsers();
         },
         (error: any) => {
           console.error(error);

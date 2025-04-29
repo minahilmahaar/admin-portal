@@ -115,6 +115,8 @@
           cLoadingButton [loading]="loading[0]" cButton disabledOnLoading
           color="primary"
           type="submit"
+          [disabled]="!FirstName.value || !LastName.value || !EmailAddress.value"
+          [cModalToggle]="AddUserModal.id"
         >
           <svg cIcon name="cilSave"></svg> Save
         </button>

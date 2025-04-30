@@ -16,7 +16,7 @@
       <button
         cButton
         color="primary"
-        [cModalToggle]="AddUserModal.id"
+        (click)="toggleRegisterUserModal()"
         class="mb-3"
       >
         <svg cIcon name="cilUserPlus"></svg> Add User
@@ -43,6 +43,7 @@
       clickableRows
       header
       pagination
+      (click)="onRowClick($event)"
       [columnFilter]="true"
     >
       <ng-template
@@ -66,10 +67,10 @@
   </c-card-body>
 </c-card>
 
-<c-modal #AddUserModal alignment="center" id="AddUserModal">
+<c-modal #AddUserModal [visible]="RegisterUserModalvisible" alignment="center" id="AddUserModal">
   <c-modal-header>
     <h5 cModalTitle>Add User</h5>
-    <button [cModalToggle]="AddUserModal.id" cButtonClose></button>
+    <button [cModalToggle]="AddUserModal.id" (click)="toggleRegisterUserModal()" cButtonClose></button>
   </c-modal-header>
   <c-modal-body>
     <form
@@ -116,7 +117,6 @@
           color="primary"
           type="submit"
           [disabled]="!FirstName.value || !LastName.value || !EmailAddress.value"
-          [cModalToggle]="AddUserModal.id"
         >
           <svg cIcon name="cilSave"></svg> Save
         </button>

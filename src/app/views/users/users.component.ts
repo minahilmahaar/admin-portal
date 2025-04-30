@@ -50,7 +50,7 @@ import {
   ModalTitleDirective,
   ModalToggleDirective,
 } from '@coreui/angular-pro';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -106,6 +106,7 @@ import {
   styleUrls: ['./users.component.scss'],
 })
 export class UsersComponent implements OnInit, OnDestroy {
+
   //#region Variables Declaration
   ModalLoading = false;
   totalCount: number | null = null;
@@ -131,11 +132,13 @@ export class UsersComponent implements OnInit, OnDestroy {
   customStylesValidated = false;
   CustomersData: any[] = [];
   private subscriptions: Subscription = new Subscription();
+  public RegisterUserModalvisible = false;
   //#endregion Variables Declaration
 
   constructor(
     private cookieService: CookieService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private Router : Router,
   ) {}
 
   CustomersColumns = [
@@ -178,7 +181,19 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   async AddUser(EmailAddress: string, FirstName: string, LastName: string) {
 
-    //clearTimeout(this.loading[0]);
+    //start loading button
+    this.loading[0] = true;
+
+
+
+    if( this.cookieService.get('Client_Id') == null || this.cookieService.get('Client_Id') == undefined || this.cookieService.get('Client_Id') == '') {
+      this.ToastMessage = 'Client ID is not set in cookies.';
+      this.ToastColor = 'danger';
+      this.showToast = true;
+      
+      this.Router.navigate(['/login']);
+      return;
+    }
 
     const body = {
       UserType_Id: 1,
@@ -196,31 +211,32 @@ export class UsersComponent implements OnInit, OnDestroy {
 
     this.ModalLoading = true;
 
-    this.subscriptions.add(
-      this.usersService.registerUser(body).subscribe(
-        (response: any) => {
-          console.log(response);
-          if (response.APIStatus.IsSuccess) {
-            this.ToastMessage = 'Record Created Successfully';
-            this.ToastColor = 'success';
-            this.showToast = true;
-          } else {
-            this.ToastMessage = response.APIStatus.Message;
-            this.ToastColor = 'danger';
-            this.showToast = true;
-          }
-          this.ModalLoading = false;
-          this.getUsers();
-        },
-        (error: any) => {
-          console.error(error);
-          this.ToastMessage = 'Error Occurred While Adding User';
-          this.ToastColor = 'danger';
-          this.showToast = true;
-          this.ModalLoading = false;
-        }
-      )
-    );
+    try {
+      const response: any = await this.usersService.registerUser(body).toPromise();
+      console.log(response);
+      if (response.APIStatus.IsSuccess) {
+      this.ToastMessage = 'Record Created Successfully';
+      this.ToastColor = 'success';
+      this.showToast = true;
+      } else {
+      this.ToastMessage = response.APIStatus.Message;
+      this.ToastColor = 'danger';
+      this.showToast = true;
+      }
+    } catch (error: any) {
+      console.error(error);
+      this.ToastMessage = 'Error Occurred While Adding User';
+      this.ToastColor = 'danger';
+      this.showToast = true;
+    } finally {
+      this.ModalLoading = false;
+      this.getUsers();
+      this.toggleRegisterUserModal();
+    }
+    }
+  
+  toggleRegisterUserModal() {
+    this.RegisterUserModalvisible = !this.RegisterUserModalvisible;
   }
 
   ngOnInit(): void {
@@ -249,4 +265,18 @@ export class UsersComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
+
+  onRowClick(event: any): void {
+
+    console.log(event);
+    // const rowId = event.target.closest('tr').getAttribute('data-row-id');
+    // if (this.details_visible[rowId]) {
+    //   this.details_visible[rowId] = false;
+    // } else {
+    //   this.details_visible[rowId] = true;
+    // }
+  }
+
+  async getuserbyid(id: string){}
+
 }

@@ -43,10 +43,24 @@
       clickableRows
       header
       pagination
-      (click)="onRowClick($event)"
+      
       [columnFilter]="true"
     >
-      <ng-template
+    <ng-template cTemplateId="tableData" let-columnName="columnName" let-item="item" let-tdContent="tdContent">
+      <td>
+        @switch (columnName) {
+          @case ('show') {
+            <button (click)="toggleDetails(item)" cButton color="primary" size="sm" variant="outline">
+              Show
+            </button>
+          }
+          @default {
+            {{ tdContent }}
+          }
+        }
+      </td>
+    </ng-template>
+      <!-- <ng-template
         cTemplateId="tableData"
         let-columnName="columnName"
         let-item="item"
@@ -62,7 +76,14 @@
 
           </ng-container>
         </td>
-      </ng-template>
+        <ng-container >
+          <td *ngIf="columnName == 'actions'"> 
+            <button (click)="toggleDetails(item.id)" cButton color="primary" size="sm" variant="outline">
+              Show
+            </button>
+          </td>
+        </ng-container>
+      </ng-template> -->
     </c-smart-table>
   </c-card-body>
 </c-card>
@@ -70,7 +91,7 @@
 <c-modal #AddUserModal [visible]="RegisterUserModalvisible" alignment="center" id="AddUserModal">
   <c-modal-header>
     <h5 cModalTitle>Add User</h5>
-    <button [cModalToggle]="AddUserModal.id" (click)="toggleRegisterUserModal()" cButtonClose></button>
+    <button (click)="toggleRegisterUserModal()" cButtonClose></button>
   </c-modal-header>
   <c-modal-body>
     <form
@@ -109,6 +130,80 @@
           #EmailAddress
           name="EmailAddress"
           type="email"
+        />
+      </c-col>
+      <c-col [md]="12" class="d-flex justify-content-end">
+        <button
+          cLoadingButton [loading]="loading[0]" cButton disabledOnLoading
+          color="primary"
+          type="submit"
+          [disabled]="!FirstName.value || !LastName.value || !EmailAddress.value"
+        >
+          <svg cIcon name="cilSave"></svg> Save
+        </button>
+      </c-col>
+    </form>
+  </c-modal-body>
+</c-modal>
+
+
+<c-modal #EditUserModal [visible]="EditUserModalvisible" alignment="center" id="AddUserModal">
+  <c-modal-header>
+    <h5 cModalTitle>Edit User</h5>
+    <button (click)="toggleEditUserModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <form
+      cForm
+      class="row g-3"
+      (ngSubmit)="EditUser(UserDisplayName.value, FirstName.value, LastName.value, PhoneNumber.value)"
+    >
+      <c-col [md]="6">
+        <label cLabel for="FirstName">First Name:</label>
+        <input
+          cFormControl
+          required
+          id="FirstName"
+          #FirstName
+          name="FirstName"
+          type="text"
+          [value]="EditUserForm.FirstName"
+        />
+      </c-col>
+      <c-col [md]="6">
+        <label cLabel for="LastName">Last Name:</label>
+        <input
+          cFormControl
+          required
+          id="LastName"
+          #LastName
+          name="LastName"
+          type="text"
+          [value]="EditUserForm.LastName"
+        />
+      </c-col>
+      <c-col [md]="12">
+        <label cLabel for="UserDisplayName">User Display Name:</label>
+        <input
+          cFormControl
+          required
+          id="UserDisplayName"
+          #UserDisplayName
+          name="UserDisplayName"
+          type="text"
+          [value]="EditUserForm.UserDisplayName"
+        />
+      </c-col>
+  
+      <c-col [md]="12">
+        <label cLabel for="PhoneNumber">Phone Number:</label>
+        <input
+          cFormControl
+          required
+          id="PhoneNumber"
+          #PhoneNumber
+          name="PhoneNumber"
+          type="text"
         />
       </c-col>
       <c-col [md]="12" class="d-flex justify-content-end">

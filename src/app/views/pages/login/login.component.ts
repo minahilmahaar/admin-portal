@@ -92,6 +92,19 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit(): void {
+    if(
+    this.cookieService.get('AccessToken') !== '' &&
+    this.cookieService.get('RefreshToken') !== '' &&
+    this.cookieService.get('Client_Id') !== '' &&
+    this.cookieService.get('AccessToken') !== undefined &&
+    this.cookieService.get('RefreshToken') !== undefined &&
+    this.cookieService.get('Client_Id') !== undefined
+    )
+    {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   onCaptchaResolved(response: string) {
     this.captchaResolved = !!response;
@@ -202,23 +215,42 @@ export class LoginComponent {
     await this.LoginService.login(body).subscribe(
       (res: any) => {
         clearTimeout(this.loading[0]);
+        this.loading[0] = undefined;
 
-        console.log('Successully Logged In, Redirecting to Dashboard...');
-        this.GlobalobjectService.AccessToken = res.AccessToken;
-        this.GlobalobjectService.RefreshToken = res.RefreshToken;
-        this.GlobalobjectService.EmailAddress = res.EmailAddress;
-        
-        // show toaster
-        this.showToast = true;
-        this.ToastMessage = 'Login Successful! Redirecting...';
-        this.ToastColor = 'success';
-        setTimeout(() => {
-          this.showToast = false;
-        }, 3000);
+        if (res.APIStatus.IsSuccess) {
+          this.GlobalobjectService.AccessToken = res.AccessToken;
+          this.GlobalobjectService.RefreshToken = res.RefreshToken;
+          this.GlobalobjectService.EmailAddress = res.EmailAddress;
 
+          const expires = new Date(new Date().getTime() + 15 * 60 * 1000);
+          this.cookieService.set('AccessToken', res.AccessToken, expires, '/');
+          this.cookieService.set('RefreshToken', res.RefreshToken, expires, '/');
+          this.cookieService.set('Client_Id', res.Data.Client_Id, expires, '/');
 
+          // show toaster
+          this.showToast = true;
+          this.ToastMessage = 'Login Successful! Redirecting...';
+          this.ToastColor = 'success';
+          setTimeout(() => {
+            this.showToast = false;
+          }, 3000);
 
         this.router.navigate(['/dashboard']);
+
+        } else {
+          this.displayError(res.APIStatus.Message);
+          // show toaster
+
+          this.showToast = true;
+          this.ToastMessage = res.APIStatus.Message;
+          this.ToastColor = 'danger';
+          setTimeout(() => {
+            this.showToast = false;
+          }, 3000);
+
+
+        }
+        
       },
       (error) => {
         clearTimeout(this.loading[0]);

@@ -127,13 +127,25 @@ export class UsersComponent implements OnInit, OnDestroy {
   AllowAllMigratable = false;
   ModalSelecetedMapping: any;
   SelectOnlyOne = false;
-  SelectedMapping: any;
+  SelectedUserEdit: any;
   unfilterdData: any[] = [];
   customStylesValidated = false;
   CustomersData: any[] = [];
   private subscriptions: Subscription = new Subscription();
   public RegisterUserModalvisible = false;
+  public EditUserModalvisible = false;
   //#endregion Variables Declaration
+
+  // create form for EDIT user
+  public EditUserForm = {
+    FirstName: '',
+    LastName: '',
+    UserDisplayName: '',
+    MobilePhoneNumber: ''
+  };
+
+
+
 
   constructor(
     private cookieService: CookieService,
@@ -177,14 +189,19 @@ export class UsersComponent implements OnInit, OnDestroy {
       filter: false,
       sorter: false,
     },
+    {
+      key: 'show',
+      label: 'Action',
+      _style: { fontWeight: '500' },
+      filter: false,
+      sorter: false,
+    },
   ];
 
   async AddUser(EmailAddress: string, FirstName: string, LastName: string) {
 
     //start loading button
     this.loading[0] = true;
-
-
 
     if( this.cookieService.get('Client_Id') == null || this.cookieService.get('Client_Id') == undefined || this.cookieService.get('Client_Id') == '') {
       this.ToastMessage = 'Client ID is not set in cookies.';
@@ -194,6 +211,10 @@ export class UsersComponent implements OnInit, OnDestroy {
       this.Router.navigate(['/login']);
       return;
     }
+
+    //create a form data object
+    const formData = new FormData();
+
 
     const body = {
       UserType_Id: 1,
@@ -239,6 +260,10 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.RegisterUserModalvisible = !this.RegisterUserModalvisible;
   }
 
+  toggleEditUserModal() {
+    this.EditUserModalvisible = !this.EditUserModalvisible;
+  }
+
   ngOnInit(): void {
     this.getUsers();
   }
@@ -266,17 +291,78 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  onRowClick(event: any): void {
 
-    console.log(event);
-    // const rowId = event.target.closest('tr').getAttribute('data-row-id');
-    // if (this.details_visible[rowId]) {
-    //   this.details_visible[rowId] = false;
-    // } else {
-    //   this.details_visible[rowId] = true;
-    // }
+  async toggleDetails(RowUser: any) {
+  this.toggleEditUserModal();
+
+    this.usersService.getUserById(RowUser.Id).subscribe(
+      (response: any) => {
+        this.SelectedUserEdit = response.Data
+        console.log(this.SelectedUserEdit);
+
+        this.EditUserForm.FirstName = this.SelectedUserEdit.FirstName;
+        this.EditUserForm.LastName = this.SelectedUserEdit.LastName;
+        this.EditUserForm.UserDisplayName = this.SelectedUserEdit.UserDisplayName;
+        this.EditUserForm.MobilePhoneNumber = this.SelectedUserEdit.MobilePhoneNumber;
+        
+
+        // if (response.APIStatus.IsSuccess) {
+        //   this.SelectedMapping = response.Data;
+        //   console.log(this.SelectedMapping);
+        // } else {
+        //   this.ToastMessage = response.APIStatus.Message;
+        //   this.ToastColor = 'danger';
+        //   this.showToast = true;
+        // }
+      },
+      (error: any) => {
+        console.error('Error fetching user details:', error);
+      }
+    );
+  
   }
+ 
+  async EditUser(FirstName: string, LastName: string, UserDisplayName : string, MobilePhoneNumber: string) {
+    this.loading[0] = true;
 
-  async getuserbyid(id: string){}
+    const body = {
+      Id: this.SelectedUserEdit.Id,
+      UserTypes_Id: this.SelectedUserEdit.UserTypes_Id,
+      UserName: this.SelectedUserEdit.UserName,
+      FirstName : FirstName,
+      LastName : LastName,
+      UserDisplayName : UserDisplayName,
+      MobilePhoneNumber : MobilePhoneNumber,
+    };
+
+    console.log(body);
+
+    this.ModalLoading = true;
+
+    try {
+      const response: any = await this.usersService.registerUser(body).toPromise();
+      console.log(response);
+      if (response.APIStatus.IsSuccess) {
+        this.ToastMessage = 'Record Updated Successfully';
+        this.ToastColor = 'success';
+        this.showToast = true;
+      } else {
+        this.ToastMessage = response.APIStatus.Message;
+        this.ToastColor = 'danger';
+        this.showToast = true;
+      }
+    } catch (error: any) {
+      console.error(error);
+      this.ToastMessage = 'Error Occurred While Updating User';
+      this.ToastColor = 'danger';
+      this.showToast = true;
+    } finally {
+      this.ModalLoading = false;
+      this.getUsers();
+      this.toggleEditUserModal();
+    }
+
+  
+  }
 
 }

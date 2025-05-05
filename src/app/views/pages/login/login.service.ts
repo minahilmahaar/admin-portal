@@ -26,7 +26,10 @@ export class LoginService implements CanActivate {
     return true;
   }
 
+  apiurlhere: any = null;
   login(body: any){
+    //this.apiurlhere = this.globalObjectService.APIURL + '/api/Authentication/User/Login';
+    //console.log('Login URL:', this.apiurlhere);
     return this.http.post(this.globalObjectService.APIURL + '/api/Authentication/User/Login', body);
   }
 }

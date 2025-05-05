@@ -123,6 +123,8 @@ export class LoginComponent {
     if (this.loginForm.valid) {
 
       const formData = this.loginForm.value;
+
+      //console.log(formData);
     
       await this.LoginService.login(formData).subscribe(
         (res: any) => {
@@ -206,6 +208,8 @@ export class LoginComponent {
     }
 
     const body = { EmailAddress: email, Password: password };
+
+    console.log(body);
 
     // Simulate loading
     this.loading[0] = setTimeout(() => {

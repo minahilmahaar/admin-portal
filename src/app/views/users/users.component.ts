@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy,signal  } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CookieService } from 'ngx-cookie-service';
@@ -134,6 +134,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   public RegisterUserModalvisible = false;
   public EditUserModalvisible = false;
+  DetailFormOnLoad = true;
   //#endregion Variables Declaration
 
   // create form for EDIT user
@@ -143,9 +144,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     UserDisplayName: '',
     MobilePhoneNumber: ''
   };
-
-
-
 
   constructor(
     private cookieService: CookieService,
@@ -262,6 +260,16 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   toggleEditUserModal() {
     this.EditUserModalvisible = !this.EditUserModalvisible;
+    ///clear form data
+    this.EditUserForm.FirstName = '';
+    this.EditUserForm.LastName = '';
+    this.EditUserForm.UserDisplayName = '';
+    this.EditUserForm.MobilePhoneNumber = '';
+    this.SelectedUserEdit = null;
+    this.ModalLoading = false;
+    this.loading[0] = false;
+    this.showToast = false;
+
   }
 
   ngOnInit(): void {
@@ -293,6 +301,8 @@ export class UsersComponent implements OnInit, OnDestroy {
 
 
   async toggleDetails(RowUser: any) {
+    this.DetailFormOnLoad = true;
+    this.Percentage = 20;
   this.toggleEditUserModal();
 
     this.usersService.getUserById(RowUser.Id).subscribe(
@@ -304,7 +314,10 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.EditUserForm.LastName = this.SelectedUserEdit.LastName;
         this.EditUserForm.UserDisplayName = this.SelectedUserEdit.UserDisplayName;
         this.EditUserForm.MobilePhoneNumber = this.SelectedUserEdit.MobilePhoneNumber;
+        this.Percentage = 100;
+
         
+        this.DetailFormOnLoad = false;
 
         // if (response.APIStatus.IsSuccess) {
         //   this.SelectedMapping = response.Data;

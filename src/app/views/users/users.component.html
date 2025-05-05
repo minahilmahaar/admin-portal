@@ -51,7 +51,7 @@
         @switch (columnName) {
           @case ('show') {
             <button (click)="toggleDetails(item)" cButton color="primary" size="sm" variant="outline">
-              Show
+              Edit
             </button>
           }
           @default {
@@ -153,11 +153,20 @@
     <button (click)="toggleEditUserModal()" cButtonClose></button>
   </c-modal-header>
   <c-modal-body>
+
+    <c-row class="d-flex justify-content-center mt-4" *ngIf="DetailFormOnLoad">
+      <c-col [md]="6" ngPreserveWhitespaces>
+
+      <c-progress [value]="Percentage" color="success" style="height: 20px;">{{ Percentage }}%</c-progress>
+
+    </c-col>
+    </c-row>
     <form
       cForm
       class="row g-3"
       (ngSubmit)="EditUser(UserDisplayName.value, FirstName.value, LastName.value, PhoneNumber.value)"
     >
+    <!-- Line 1 -->
       <c-col [md]="6">
         <label cLabel for="FirstName">First Name:</label>
         <input
@@ -168,8 +177,10 @@
           name="FirstName"
           type="text"
           [value]="EditUserForm.FirstName"
+          [disabled]="DetailFormOnLoad"
         />
       </c-col>
+
       <c-col [md]="6">
         <label cLabel for="LastName">Last Name:</label>
         <input
@@ -180,8 +191,11 @@
           name="LastName"
           type="text"
           [value]="EditUserForm.LastName"
+          [disabled]="DetailFormOnLoad"
         />
       </c-col>
+
+      <!-- Line 2 -->
       <c-col [md]="12">
         <label cLabel for="UserDisplayName">User Display Name:</label>
         <input
@@ -192,9 +206,10 @@
           name="UserDisplayName"
           type="text"
           [value]="EditUserForm.UserDisplayName"
+          [disabled]="DetailFormOnLoad"
         />
       </c-col>
-  
+      
       <c-col [md]="12">
         <label cLabel for="PhoneNumber">Phone Number:</label>
         <input
@@ -204,17 +219,22 @@
           #PhoneNumber
           name="PhoneNumber"
           type="text"
+          [disabled]="DetailFormOnLoad"
         />
+
       </c-col>
+
+
       <c-col [md]="12" class="d-flex justify-content-end">
         <button
           cLoadingButton [loading]="loading[0]" cButton disabledOnLoading
           color="primary"
           type="submit"
-          [disabled]="!FirstName.value || !LastName.value || !EmailAddress.value"
+          
         >
           <svg cIcon name="cilSave"></svg> Save
         </button>
+        <!-- [disabled]=" !UserDisplayName || !FirstName.value || !LastName.value || !PhoneNumber.value" -->
       </c-col>
     </form>
   </c-modal-body>

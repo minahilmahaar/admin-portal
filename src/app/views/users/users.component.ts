@@ -51,6 +51,7 @@ import {
   ModalToggleDirective,
 } from '@coreui/angular-pro';
 import { Router } from '@angular/router';
+import { GlobalobjectService } from '../../globalobject.service';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -137,15 +138,17 @@ export class UsersComponent implements OnInit, OnDestroy {
   DetailFormOnLoad = true;
   //#endregion Variables Declaration
 
-  // create form for EDIT user
-  public EditUserForm = {
-    FirstName: '',
+
+
+  // add user
+  public AddUserForm = {
+    FirstName : '',
     LastName: '',
-    UserDisplayName: '',
-    MobilePhoneNumber: ''
+    EmailAddress: ''
   };
 
   constructor(
+    private GlobalobjectService: GlobalobjectService,
     private cookieService: CookieService,
     private usersService: UsersService,
     private Router : Router,
@@ -257,19 +260,28 @@ export class UsersComponent implements OnInit, OnDestroy {
   toggleRegisterUserModal() {
     this.RegisterUserModalvisible = !this.RegisterUserModalvisible;
   }
+  
+  // Optimized EditUserForm with consistent property names
+  public EditUserForm = {
+    FirstName: '',
+    LastName: '',
+    UserDisplayName: '',
+    PhoneNumber: ''
+  };
 
   toggleEditUserModal() {
     this.EditUserModalvisible = !this.EditUserModalvisible;
-    ///clear form data
-    this.EditUserForm.FirstName = '';
-    this.EditUserForm.LastName = '';
-    this.EditUserForm.UserDisplayName = '';
-    this.EditUserForm.MobilePhoneNumber = '';
+    // Clear form data with a single assignment
+    this.EditUserForm = {
+      FirstName: '',
+      LastName: '',
+      UserDisplayName: '',
+      PhoneNumber: ''
+    };
     this.SelectedUserEdit = null;
     this.ModalLoading = false;
     this.loading[0] = false;
     this.showToast = false;
-
   }
 
   ngOnInit(): void {
@@ -303,79 +315,69 @@ export class UsersComponent implements OnInit, OnDestroy {
   async toggleDetails(RowUser: any) {
     this.DetailFormOnLoad = true;
     this.Percentage = 20;
-  this.toggleEditUserModal();
+    this.toggleEditUserModal();
 
     this.usersService.getUserById(RowUser.Id).subscribe(
       (response: any) => {
-        this.SelectedUserEdit = response.Data
-        console.log(this.SelectedUserEdit);
-
-        this.EditUserForm.FirstName = this.SelectedUserEdit.FirstName;
-        this.EditUserForm.LastName = this.SelectedUserEdit.LastName;
-        this.EditUserForm.UserDisplayName = this.SelectedUserEdit.UserDisplayName;
-        this.EditUserForm.MobilePhoneNumber = this.SelectedUserEdit.MobilePhoneNumber;
+        this.SelectedUserEdit = response.Data;
+        console.log(this.SelectedUserEdit)
+        // Use consistent property names
+        this.EditUserForm = {
+          FirstName: this.SelectedUserEdit.FirstName || '',
+          LastName: this.SelectedUserEdit.LastName || '',
+          UserDisplayName: this.SelectedUserEdit.UserDisplayName || '',
+          PhoneNumber: this.SelectedUserEdit.MobilePhoneNumber || ''
+        };
         this.Percentage = 100;
-
-        
         this.DetailFormOnLoad = false;
-
-        // if (response.APIStatus.IsSuccess) {
-        //   this.SelectedMapping = response.Data;
-        //   console.log(this.SelectedMapping);
-        // } else {
-        //   this.ToastMessage = response.APIStatus.Message;
-        //   this.ToastColor = 'danger';
-        //   this.showToast = true;
-        // }
       },
       (error: any) => {
         console.error('Error fetching user details:', error);
       }
     );
-  
   }
  
-  async EditUser(FirstName: string, LastName: string, UserDisplayName : string, MobilePhoneNumber: string) {
+  async EditUser(UserDisplayName: string, FirstName: string, LastName: string, PhoneNumber: string) {
     this.loading[0] = true;
 
     const body = {
       Id: this.SelectedUserEdit.Id,
-      UserTypes_Id: this.SelectedUserEdit.UserTypes_Id,
+      UserTypes_Id: this.SelectedUserEdit.UserType_Id,
+      Client_Id: this.SelectedUserEdit.Client_Id,
       UserName: this.SelectedUserEdit.UserName,
-      FirstName : FirstName,
-      LastName : LastName,
-      UserDisplayName : UserDisplayName,
-      MobilePhoneNumber : MobilePhoneNumber,
+      FirstName,
+      LastName,
+      UserDisplayName,
+      MobilePhoneNumber: PhoneNumber,
     };
 
     console.log(body);
 
     this.ModalLoading = true;
 
-    try {
-      const response: any = await this.usersService.registerUser(body).toPromise();
-      console.log(response);
-      if (response.APIStatus.IsSuccess) {
-        this.ToastMessage = 'Record Updated Successfully';
-        this.ToastColor = 'success';
-        this.showToast = true;
-      } else {
-        this.ToastMessage = response.APIStatus.Message;
-        this.ToastColor = 'danger';
-        this.showToast = true;
-      }
-    } catch (error: any) {
-      console.error(error);
-      this.ToastMessage = 'Error Occurred While Updating User';
-      this.ToastColor = 'danger';
-      this.showToast = true;
-    } finally {
-      this.ModalLoading = false;
-      this.getUsers();
-      this.toggleEditUserModal();
-    }
+    // try {
+    //   const response: any = await this.usersService.registerUser(body).toPromise();
+    //   console.log(response);
+    //   if (response.APIStatus.IsSuccess) {
+    //     this.ToastMessage = 'Record Updated Successfully';
+    //     this.ToastColor = 'success';
+    //     this.showToast = true;
+    //   } else {
+    //     this.ToastMessage = response.APIStatus.Message;
+    //     this.ToastColor = 'danger';
+    //     this.showToast = true;
+    //   }
+    // } catch (error: any) {
+    //   console.error(error);
+    //   this.ToastMessage = 'Error Occurred While Updating User';
+    //   this.ToastColor = 'danger';
+    //   this.showToast = true;
+    // } finally {
+    //   this.ModalLoading = false;
+    //   this.getUsers();
+    //   this.toggleEditUserModal();
+    // }
 
-  
   }
 
 }

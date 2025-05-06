@@ -21,6 +21,7 @@ export class UsersService {
 
   }
 
+
   getUserById(Id: string) {
       return this.HttpClient.get(`${this.GlobalobjectService.APIURL}/api/MS/Users/GetByID/${Id}`, {
         headers: {
@@ -33,14 +34,25 @@ export class UsersService {
 
   registerUser(body: any) {
     {
-      return this.HttpClient.post(this.GlobalobjectService.APIURL + '/api/UserManagement/User/Register', body,        {
+      return this.HttpClient.post(this.GlobalobjectService.APIURL + '/api/UserManagement/User/Register', body,
+      {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + this.CookieService.get('AccessToken'),
+            'Accept': 'application/json'        
+                  }
+      });
+    } }
+
+    editUser(body: any) {
+      return this.HttpClient.put(this.GlobalobjectService.APIURL + '/api/UserManagement/User/Edit', body, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + this.CookieService.get('AccessToken'),
-        'Accept': 'application/json'        
-      }
+          'Accept': 'application/json'
+        }
       });
+    }
 
-  }
 }
-}
+

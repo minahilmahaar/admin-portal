@@ -164,7 +164,8 @@
     <form
       cForm
       class="row g-3"
-      (ngSubmit)="EditUser(UserDisplayName.value, FirstName.value, LastName.value, PhoneNumber.value)"
+      #editUserForm="ngForm"
+      (ngSubmit)="EditUser(EditUserForm.UserDisplayName, EditUserForm.FirstName, EditUserForm.LastName, EditUserForm.PhoneNumber)"
     >
     <!-- Line 1 -->
       <c-col [md]="6">
@@ -173,10 +174,10 @@
           cFormControl
           required
           id="FirstName"
-          #FirstName
+          #FirstName="ngModel"
           name="FirstName"
           type="text"
-          [value]="EditUserForm.FirstName"
+          [(ngModel)]="EditUserForm.FirstName"
           [disabled]="DetailFormOnLoad"
         />
       </c-col>
@@ -187,10 +188,10 @@
           cFormControl
           required
           id="LastName"
-          #LastName
+          #LastName="ngModel"
           name="LastName"
           type="text"
-          [value]="EditUserForm.LastName"
+          [(ngModel)]="EditUserForm.LastName"
           [disabled]="DetailFormOnLoad"
         />
       </c-col>
@@ -202,10 +203,10 @@
           cFormControl
           required
           id="UserDisplayName"
-          #UserDisplayName
+          #UserDisplayName="ngModel"
           name="UserDisplayName"
           type="text"
-          [value]="EditUserForm.UserDisplayName"
+          [(ngModel)]="EditUserForm.UserDisplayName"
           [disabled]="DetailFormOnLoad"
         />
       </c-col>
@@ -216,9 +217,10 @@
           cFormControl
           required
           id="PhoneNumber"
-          #PhoneNumber
+          #PhoneNumber="ngModel"
           name="PhoneNumber"
           type="text"
+          [(ngModel)]="EditUserForm.PhoneNumber"
           [disabled]="DetailFormOnLoad"
         />
 
@@ -227,14 +229,19 @@
 
       <c-col [md]="12" class="d-flex justify-content-end">
         <button
-          cLoadingButton [loading]="loading[0]" cButton disabledOnLoading
+          cLoadingButton
+          [loading]="loading[0]"
+          cButton
+          disabledOnLoading
           color="primary"
           type="submit"
-          
+          [disabled]="
+            !editUserForm.form.valid ||
+            DetailFormOnLoad
+          "
         >
           <svg cIcon name="cilSave"></svg> Save
         </button>
-        <!-- [disabled]=" !UserDisplayName || !FirstName.value || !LastName.value || !PhoneNumber.value" -->
       </c-col>
     </form>
   </c-modal-body>

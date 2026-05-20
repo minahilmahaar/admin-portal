@@ -1,196 +1,186 @@
+<c-toaster style="margin-top: 115px" placement="top-end" position="fixed">
+  <c-toast
+    [autohide]="false"
+    [fade]="false"
+    [visible]="showToast"
+    color="{{ ToastColor }}"
+    #toast="cToast"
+  >
+    <c-toast-body style="color: white">{{ ToastMessage }}</c-toast-body>
+  </c-toast>
+</c-toaster>
+
 <c-card>
-    <c-card-body>
-        <c-smart-table
-        [activePage]="1"
-        [columnSorter]="true"
-        [columns]="CustomersColumns"
-        [itemsPerPageSelect]="true"
-        [itemsPerPage]="10"
-        tableFilterPlaceholder="Type Here"
-        [items]="CustomersData"
-        [sorterValue]="{ column: 'name', state: 'asc' }"
-        [tableFilter]="true"
-        tableFilterLabel="  Search:"
-        [itemsPerPageLabel]="
-          totalCount ? totalCount + 'Items Per Page:' : 'Items Per Page:'
-        "
-        noItemsLabel="No Record Found"
-        [tableProps]="{ hover: true, responsive: true }"
-        [tableBodyProps]="{ align: 'middle' }"
-        cleaner
-        clickableRows
-        header
-        pagination
-        selectAll="false"
-        [selectable]="true"
+  <c-card-header><strong>Clients</strong></c-card-header>
+  <c-card-body>
+    <c-smart-table
+      [activePage]="1"
+      [columnSorter]="true"
+      [columns]="CustomersColumns"
+      [items]="CustomersData"
+      [itemsPerPageSelect]="true"
+      [itemsPerPage]="20"
+      tableFilterPlaceholder="Type Here"
+      [sorterValue]="{ column: 'UserDisplayName', state: 'asc' }"
+      [tableFilter]="true"
+      tableFilterLabel="Search:"
+      [itemsPerPageLabel]="totalCount + ' Items Per Page:'"
+      noItemsLabel="No Record Found"
+      [tableProps]="{ hover: true, striped: true, responsive: true }"
+      [tableBodyProps]="{ align: 'middle' }"
+      [loading]="inProgress"
+      cleaner
+      header
+      pagination
+      [columnFilter]="true"
+    >
+      <ng-template
+        cTemplateId="tableData"
+        let-columnName="columnName"
+        let-item="item"
+        let-tdContent="tdContent"
       >
-        <ng-template cTemplateId="tableDetails" let-item="item">
-          <div [visible]="this.details_visible[item.___id] === true" cCollapse>
-            <c-card class="rounded-0">
-              <c-card-body>
-                <h5>Details</h5>
-                <!-- <h5>{{ item['Number'] }}</h5> -->
-                <!-- <p class="text-muted">User since: {{ item['CreatedOnUtc'] }}</p> -->
-  
-                <c-smart-table
-                  [activePage]="1"
-                  [columns]="GLDetailsModalColumns"
-                  [itemsPerPageSelect]="true"
-                  [itemsPerPage]="5"
-                  tableFilterPlaceholder="Type Here"
-                  [items]="GLDetailsModalData"
-                  [tableHeadProps]="{color: 'warning'}"
-                  [sorterValue]="{ column: 'name', state: 'asc' }"
-                  
-                  [itemsPerPageLabel]="
-                    modaltotalCount
-                      ? modaltotalCount + 'Items Per Page:'
-                      : 'Items Per Page:'
-                  "
-                  noItemsLabel="No Record Found"
-                  [tableProps]="{ hover: true, responsive: true }"
-                  [tableBodyProps]="{ align: 'middle' }"
-                  cleaner
-                  clickableRows
-                  header
-                  pagination
-                >
-                  >
-                  <ng-template cTemplateId="tableSummaryRow">
-                    <tr class="text-end">
-                      <th ></th>
-                      <th ></th>
-                      <th ></th>
-                      <th ></th>
-                      <th ></th>
-                      <th ></th>
-                      <th >{{totalcredits| currency : " "}}</th>
-                      <th >{{totaldebits| currency : " "}}</th>
-                      <th> </th>
-                    </tr>
-                  </ng-template>
-                  
-                  <ng-template
-                    cTemplateId="tableData"
-                    let-columnName="columnName"
-                    let-item="item"
-                    let-tdContent="tdContent"
-                  >
-                    <td>
-                      <ng-container [ngSwitch]="columnName">
-                        <ng-container *ngSwitchCase="'Actions'" class="py-2">
-                          <button
-                            [cModalToggle]="MappingModal.id"
-                            cButton
-                            color="primary"
-                            size="sm"
-                            variant="outline"
-                            (click)="EditMapping(item)"
-                          >
-                            Set Mappings
-                          </button>
-                        </ng-container>
-  
-                        <ng-container *ngSwitchCase="'acmid'">
-                          <div class="text-end">
-                            {{ tdContent }}
-                          </div>
-                        </ng-container>
-  
-                        <ng-container *ngSwitchCase="'credit_Amount'">
-                          <div class="text-end">
-                            {{ tdContent | currency : " " }}
-                          </div>
-                        </ng-container>
-                        <ng-container *ngSwitchCase="'debit_Amount'">
-                          <div class="text-end">
-                            {{ tdContent | currency : " " }}
-                          </div>
-                        </ng-container>
-  
-                        <ng-container *ngSwitchDefault>
-                          {{ tdContent }}
-                        </ng-container>
-                      </ng-container>
-                    </td>
-                  </ng-template>
-                </c-smart-table>
-                <div class="text-center" style="font-size: 28px">
-                  <c-spinner
-                    color="primary"
-                    variant="grow"
-                    *ngIf="ModalLoading"
-                  ></c-spinner>
-                </div>
-              </c-card-body>
-              <!-- <c-card-footer>
-              <button cButton color="info" size="sm">
-                User Settings
-              </button>
-              <button cButton class="ms-1" color="danger" size="sm">
-                Delete
-              </button>
-            </c-card-footer> -->
-            </c-card>
-          </div>
-        </ng-template>
-        >
-        <ng-template
-          cTemplateId="tableData"
-          let-columnName="columnName"
-          let-item="item"
-          let-tdContent="tdContent"
-        >
-          <td>
-            <ng-container [ngSwitch]="columnName">
-              <ng-container *ngSwitchDefault>
-                {{ tdContent }}
-              </ng-container>
-  
-              <ng-container *ngSwitchCase="'Actions'" class="py-2">
+        <td>
+          <ng-container [ngSwitch]="columnName">
+            <ng-container *ngSwitchCase="'Actions'">
+              <div class="action-cell">
                 <button
                   cButton
                   color="primary"
                   size="sm"
-                  [cModalToggle]="GLDetailsModal.id"
-                  (click)="getdetails(item)"
-                  variant="outline"
+                  variant="ghost"
+                  (click)="openEditModal(item)"
+                  title="Edit client"
+                  class="icon-btn"
                 >
-                  Details
+                  <svg cIcon name="cilPencil"></svg>
                 </button>
-              </ng-container>
-  
-              <ng-container *ngSwitchCase="'isSync'" [ngSwitch]="tdContent">
-                <c-form-check [switch]="true">
-                  <input
-                    cFormCheckInput
-                    type="checkbox"
-                    [checked]="tdContent"
-                    disabled
-                  />
-                </c-form-check>
-              </ng-container>
-  
-              <ng-container *ngSwitchCase="'CreatedOnUtc'">
-                <div class="text-center">
-                  {{ tdContent }}
-                </div>
-              </ng-container>
-  
-              <ng-container *ngSwitchCase="'Number'">
-                <div class="text-end">
-                  {{ tdContent }}
-                </div>
-              </ng-container>
-  
-              <ng-container *ngSwitchCase="'Id'">
-                <div class="text-center">
-                  {{ tdContent }}
-                </div>
-              </ng-container>
+                <button
+                  cButton
+                  color="info"
+                  size="sm"
+                  variant="ghost"
+                  (click)="goToRMHQBO(item)"
+                  title="Open in RMH QBO"
+                  class="icon-btn"
+                >
+                  <svg cIcon name="cilLink"></svg>
+                </button>
+              </div>
             </ng-container>
-          </td>
-        </ng-template>
-      </c-smart-table>
-    </c-card-body>
+
+            <ng-container *ngSwitchCase="'IsActive'">
+              <c-form-check [switch]="true" class="custom-switch">
+                <input cFormCheckInput type="checkbox" [checked]="tdContent" disabled />
+              </c-form-check>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'IsOnline'">
+              <c-form-check [switch]="true" class="custom-switch">
+                <input cFormCheckInput type="checkbox" [checked]="tdContent" disabled />
+              </c-form-check>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              {{ tdContent }}
+            </ng-container>
+          </ng-container>
+        </td>
+      </ng-template>
+    </c-smart-table>
+  </c-card-body>
 </c-card>
+
+<c-modal
+  alignment="center"
+  backdrop="static"
+  [visible]="EditModalVisible"
+  id="EditClientModal"
+>
+  <c-modal-header>
+    <h5 cModalTitle>Edit Client</h5>
+    <button (click)="closeEditModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <form
+      cForm
+      cRow
+      #EditForm_="ngForm"
+      class="row g-3"
+      (ngSubmit)="saveEdit(EditForm_)"
+      novalidate
+    >
+      <c-col [md]="6">
+        <label cLabel for="FirstName">First Name</label>
+        <input
+          cFormControl
+          id="FirstName"
+          name="FirstName"
+          type="text"
+          [(ngModel)]="EditForm.FirstName"
+        />
+      </c-col>
+      <c-col [md]="6">
+        <label cLabel for="LastName">Last Name</label>
+        <input
+          cFormControl
+          id="LastName"
+          name="LastName"
+          type="text"
+          [(ngModel)]="EditForm.LastName"
+        />
+      </c-col>
+      <c-col [md]="12">
+        <label cLabel for="UserDisplayName">Display Name</label>
+        <input
+          cFormControl
+          id="UserDisplayName"
+          name="UserDisplayName"
+          type="text"
+          [(ngModel)]="EditForm.UserDisplayName"
+        />
+      </c-col>
+      <c-col [md]="6">
+        <label cLabel for="UserName">Username</label>
+        <input
+          cFormControl
+          id="UserName"
+          name="UserName"
+          type="text"
+          [(ngModel)]="EditForm.UserName"
+        />
+      </c-col>
+      <c-col [md]="6">
+        <label cLabel for="MobilePhoneNumber">Phone Number</label>
+        <input
+          cFormControl
+          id="MobilePhoneNumber"
+          name="MobilePhoneNumber"
+          type="text"
+          [(ngModel)]="EditForm.MobilePhoneNumber"
+        />
+      </c-col>
+      <c-col [md]="12" class="d-flex justify-content-end gap-2">
+        <button
+          type="button"
+          cButton
+          color="secondary"
+          variant="outline"
+          (click)="closeEditModal()"
+        >
+          Cancel
+        </button>
+        <button
+          cLoadingButton
+          [loading]="EditLoading"
+          cButton
+          disabledOnLoading
+          color="primary"
+          type="submit"
+        >
+          <svg cIcon name="cilSave"></svg> Save
+        </button>
+      </c-col>
+    </form>
+  </c-modal-body>
+</c-modal>

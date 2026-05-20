@@ -1,0 +1,260 @@
+<c-toaster style="margin-top: 115px" placement="top-end" position="fixed">
+  <c-toast
+    [autohide]="false"
+    [fade]="false"
+    [visible]="showToast"
+    color="{{ ToastColor }}"
+    #toast="cToast"
+  >
+    <c-toast-body style="color: white">{{ ToastMessage }}</c-toast-body>
+  </c-toast>
+</c-toaster>
+
+
+<c-row>
+  <c-col md="8">
+    <c-card>
+      <c-card-header ngPreserveWhitespaces>
+        <strong>Roles</strong>
+      </c-card-header>
+
+      <c-card-body>
+        <c-smart-table
+          [activePage]="1"
+          [columnSorter]="true"
+          [columns]="RolessColumns"
+          [itemsPerPageSelect]="true"
+          tableFilterPlaceholder="Type Here"
+          [itemsPerPage]="20"
+          [items]="RolessData"
+          [sorterValue]="{ column: 'name', state: 'asc' }"
+          [tableFilter]="false"
+          tableFilterLabel="  Search:"
+          [itemsPerPageLabel]="
+            totalCount ? totalCount + ' Items Per Page:' : 'Items Per Page:'
+          "
+          [tableProps]="{ hover: true, responsive: true }"
+          [tableBodyProps]="{ align: 'middle' }"
+          [loading]="inprocess"
+          clickableRows
+          header
+          pagination
+        >
+          <ng-template
+            cTemplateId="tableData"
+            let-columnName="columnName"
+            let-item="item"
+            let-tdContent="tdContent"
+          >
+            <td>
+              <ng-container [ngSwitch]="columnName">
+                <ng-container *ngSwitchCase="'Actions'" class="py-2">
+                  <button
+                    cButton
+                    color="primary"
+                    size="sm"
+                    variant="outline"
+                    (click)="toggleEditRolesModal(item)"
+                  >
+                    Edit
+                  </button>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'IsActive'">
+                  <c-form-check [switch]="true" class="custom-switch">
+                    <input
+                      cFormCheckInput
+                      type="checkbox"
+                      [checked]="tdContent"
+                      disabled
+                    />
+                  </c-form-check>
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                  {{ tdContent }}
+                </ng-container>
+              </ng-container>
+            </td>
+          </ng-template>
+        </c-smart-table>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col md="4">
+    <c-card class="mb-4">
+      <c-card-header ngPreserveWhitespaces>
+        <c-row>
+          <c-col>
+            <strong>Add Role</strong>
+          </c-col>
+        </c-row>
+      </c-card-header>
+      <c-card-body>
+        <form
+          #RoleDetailsForm="ngForm"
+          (ngSubmit)="AddRole(RoleDetailsForm)"
+          [gutter]="3"
+          [validated]="customStylesValidated"
+          novalidate
+          cForm
+          cRow
+          class="needs-validation"
+        >
+          <c-col [md]="12">
+            <label cLabel for="RoleName">Role Name *</label>
+            <input
+              cFormControl
+              id="RoleName"
+              name="RoleName"
+              required
+              type="text"
+              [(ngModel)]="RolesService.RolesData.RoleName"
+            />
+            <c-form-feedback [valid]="true">Looks good!</c-form-feedback>
+            <c-form-feedback [valid]="false">Role Name is Required</c-form-feedback>
+          </c-col>
+          <c-col [md]="12">
+            <label cLabel for="Permissions">Permissions *</label>
+            <c-multi-select
+              multiple
+              clearSearchOnSelect
+              cFormControl
+              id="Permissions"
+              name="Permissions"
+              required
+              [valid]="
+                customStylesValidated
+                  ? RoleDetailsForm.controls.Permissions?.valid
+                  : undefined
+              "
+              #addPerm="ngModel"
+              [(ngModel)]="RolesService.RolesData.menus"
+              visibleItems="8"
+              (valueChange)="onAddPermissionsChange($event)"
+            >
+              @for (menu of MenuList; track $index) {
+              <c-multi-select-option
+                *ngIf="menu.Parent_Id === 0; else childRow"
+                [value]="menu.Id"
+                >{{ menu.MenuName }}</c-multi-select-option
+              >
+
+              <ng-template #childRow>
+                <c-multi-select-option [value]="menu.Id">
+                  {{ "‎ ‎ ‎ ‎ ‎ ‎ " + menu.MenuName }}
+                </c-multi-select-option>
+              </ng-template>
+              }
+            </c-multi-select>
+            <c-form-feedback [valid]="true">Looks good!</c-form-feedback>
+            <c-form-feedback [valid]="false"></c-form-feedback>
+          </c-col>
+          <c-col [xs]="12">
+            <div class="text-end">
+              <button cButton color="primary" variant="outline" type="submit" [disabled]="ButtonLoading">
+                <c-spinner
+                  aria-hidden="true"
+                  size="sm"
+                  *ngIf="ButtonLoading"
+                ></c-spinner>
+                Save
+              </button>
+            </div>
+          </c-col>
+        </form>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal
+  #EditUserModal
+  [visible]="EditUserModalvisible"
+  alignment="center"
+  id="AddUserModal"
+>
+  <c-modal-header>
+    <h5 cModalTitle>Edit Role</h5>
+    <button (click)="toggleEditRolesModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <form
+      cForm
+      class="row g-3"
+      #EditRoleNgForm="ngForm"
+      (ngSubmit)="EditRole(EditRoleModel.RoleName, EditRoleModel.IsActive)"
+    >
+      <c-col [md]="12">
+        <label cLabel for="RoleName">Role Name *</label>
+        <input
+          cFormControl
+          required
+          id="RoleName"
+          name="RoleName"
+          type="text"
+          [(ngModel)]="EditRoleModel.RoleName"
+          [disabled]="DetailFormOnLoad"
+          #RoleName="ngModel"
+        />
+      </c-col>
+      <c-col [md]="12">
+        <label cLabel for="EditPermissions">Permissions *</label>
+        <c-multi-select
+          multiple
+          clearSearchOnSelect
+          cFormControl
+          id="EditPermissions"
+          name="EditPermissions"
+          required
+          #editPerm="ngModel"
+          [(ngModel)]="EditRoleModel.menus"
+          visibleItems="8"
+          [disabled]="DetailFormOnLoad"
+          (valueChange)="onEditPermissionsChange($event)"
+        >
+          @for (menu of MenuList; track $index) {
+          <c-multi-select-option
+            *ngIf="menu.Parent_Id === 0; else childRow"
+            [value]="menu.Id"
+            >{{ menu.MenuName }}</c-multi-select-option
+          >
+          <ng-template #childRow>
+            <c-multi-select-option [value]="menu.Id">
+              {{ "‎ ‎ ‎ ‎ ‎ ‎ " + menu.MenuName }}
+            </c-multi-select-option>
+          </ng-template>
+          }
+        </c-multi-select>
+      </c-col>
+
+      <c-col [md]="6">
+        <c-form-check [switch]="true" class="custom-switch">
+          <label cFormCheckLabel for="IsActive">Is Active</label>
+          <input
+            cFormCheckInput
+            id="IsActive"
+            name="IsActive"
+            type="checkbox"
+            [(ngModel)]="EditRoleModel.IsActive"
+            [disabled]="DetailFormOnLoad"
+          />
+        </c-form-check>
+      </c-col>
+
+      <c-col [md]="12" class="d-flex justify-content-end">
+        <button
+          cLoadingButton
+          [loading]="loading[0]"
+          cButton
+          disabledOnLoading
+          color="primary"
+          type="submit"
+          [disabled]="!EditRoleNgForm.form.valid || DetailFormOnLoad"
+        >
+          <svg cIcon name="cilSave"></svg> Save
+        </button>
+      </c-col>
+    </form>
+  </c-modal-body>
+</c-modal>

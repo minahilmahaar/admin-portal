@@ -1,0 +1,186 @@
+<c-row>
+  <c-col md="3">
+    <c-card class="mb-4">
+      <c-card-header ngPreserveWhitespaces>
+        <c-row>
+          <c-col>
+            <button
+              cButton
+              color="primary"
+              variant="ghost"
+              size="sm"
+              [routerLink]="['/configuration/users']"
+              style="margin-right: 10px"
+            >
+              <svg cIcon name="cilArrowThickLeft"></svg>
+            </button>
+            <strong>User Details</strong>
+          </c-col>
+        </c-row>
+      </c-card-header>
+      <c-card-body>
+        <h6 cCardTitle>Name</h6>
+        <p cCardText>{{ UserData?.UserDisplayName }}</p>
+
+        <h6 cCardTitle>Email</h6>
+        <p cCardText>{{ UserData?.EmailAddress }}</p>
+
+        <h6 cCardTitle>Status</h6>
+        <p cCardText>{{ UserData?.IsActive ? "Active" : "Inactive" }}</p>
+
+        <p cCardText>
+          <small class="text-medium-emphasis"
+            >Last Updated on {{ UserData?.UpdatedOnUTC | date }}</small
+          >
+        </p>
+        <div>
+          <button
+            cButton
+            class="ms-1 mt-1"
+            color="primary"
+            variant="outline"
+            style="padding: 5px 10px; margin-left: 100px"
+            size="sm"
+            (click)="EditUser(UserData)"
+          >
+            Edit Details
+          </button>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col md="9">
+    <c-card class="mb-4">
+      <c-card-header>
+        <c-row>
+          <c-col>
+            <strong>Modify User Roles</strong>
+          </c-col>
+        </c-row>
+      </c-card-header>
+      <c-card-body>
+        <div class="container mt-2">
+          <ng-container *ngFor="let task of RoleList">
+            <c-row *ngIf="task.Parent_Id === 0; else childRow" class="mb-2">
+              <c-col md="1"></c-col>
+              <c-col md="11">
+                <c-form-check [switch]="true" class="custom-switch">
+                  <input
+                    cFormCheckInput
+                    type="checkbox"
+                    [(ngModel)]="task.IsActive"
+                  />
+                  <label cFormCheckLabel>{{ task.RoleName }}</label>
+                </c-form-check>
+              </c-col>
+            </c-row>
+            <ng-template #childRow>
+              <c-row class="mb-2">
+                <c-col md="2"></c-col>
+                <c-col md="10">
+                  <c-form-check [switch]="true" class="custom-switch">
+                    <input
+                      cFormCheckInput
+                      type="checkbox"
+                      [(ngModel)]="task.IsActive"
+                    />
+                    <label cFormCheckLabel>{{ task.RoleName }}</label>
+                  </c-form-check>
+                </c-col>
+              </c-row>
+            </ng-template>
+          </ng-container>
+          <c-col md="12" class="text-end">
+            <button
+              class="btn btn-primary"
+              [loading]="loading[0]"
+              cLoadingButton
+              disabledOnLoading
+              (click)="SaveRoles()"
+            >
+              Save
+            </button>
+          </c-col>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal
+  #AddUser
+  alignment="center"
+  id="AddUser"
+  backdrop="static"
+  [visible]="ModalVisible"
+>
+  <c-modal-header>
+    <h5 cModalTitle>User Details</h5>
+    <button (click)="toggleModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <form
+      #ProductDetailsForm="ngForm"
+      (ngSubmit)="UpdateUserDetails(ProductDetailsForm, UsersService.UserData)"
+      [gutter]="3"
+      [validated]="customStylesValidated"
+      novalidate
+      cForm
+      cRow
+      class="needs-validation"
+    >
+      <c-col [md]="12">
+        <label cLabel for="Name">Name *</label>
+        <input
+          cFormControl
+          id="Name"
+          name="Name"
+          required
+          type="text"
+          [(ngModel)]="UsersService.UserData.UserDisplayName"
+        />
+        <c-form-feedback [valid]="true">Looks good!</c-form-feedback>
+        <c-form-feedback [valid]="false">Name is Required</c-form-feedback>
+      </c-col>
+      <c-col [md]="12">
+        <label cLabel for="Email">Email *</label>
+        <input
+          cFormControl
+          id="Email"
+          name="Email"
+          required
+          readonly
+          type="email"
+          [readOnly]="EditMode"
+          [(ngModel)]="UsersService.UserData.EmailAddress"
+        />
+        <c-form-feedback [valid]="true">Looks good!</c-form-feedback>
+        <c-form-feedback [valid]="false">Email is Required</c-form-feedback>
+      </c-col>
+      <c-col [xs]="7" class="m-3">
+        <c-form-check [switch]="true" class="custom-switch">
+          <input
+            cFormCheckInput
+            id="isActive"
+            name="isActive"
+            type="checkbox"
+            [(ngModel)]="UsersService.UserData.IsActive"
+          />
+          <label cFormCheckLabel for="isActive">Active</label>
+        </c-form-check>
+      </c-col>
+      <c-col [xs]="12">
+        <div class="text-end">
+          <button cButton color="primary" variant="outline" type="submit">
+            <c-spinner
+              aria-hidden="true"
+              size="sm"
+              *ngIf="ButtonLoading"
+            ></c-spinner>
+            Save
+          </button>
+        </div>
+      </c-col>
+    </form>
+  </c-modal-body>
+</c-modal>

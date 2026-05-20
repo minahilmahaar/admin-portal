@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { EventEmitter } from '@angular/core';
+import { environment } from '../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class GlobalobjectService {
   public Version = '0.0.0.0';
   public Client_Id: any;
-  public APIURL: string = 'https://x2xdev.accsoft.com:3007';
+  public APIURL: string = environment.apiUrl;
   public RefreshToken: any;
   public AccessToken: any;
   public EmailAddress : any;

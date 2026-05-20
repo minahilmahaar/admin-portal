@@ -31,9 +31,21 @@ export const navItems: INavData[] = [
     iconComponent: { name: 'cil-ban' },
   },
   {
-    name: 'Users',
-    url: '/users',
-    iconComponent: { name: 'cil-fingerprint' },
+    name: 'Configuration',
+    url: '/configuration',
+    iconComponent: { name: 'cil-settings' },
+    children: [
+      {
+        name: 'Users',
+        url: '/configuration/users',
+        iconComponent: { name: 'cil-fingerprint' },
+      },
+      {
+        name: 'Roles',
+        url: '/configuration/roles',
+        iconComponent: { name: 'cil-shield-alt' },
+      },
+    ],
   },
 
   // {

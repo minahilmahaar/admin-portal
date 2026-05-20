@@ -1,0 +1,253 @@
+<c-toaster style="margin-top: 115px" placement="top-end" position="fixed">
+  <c-toast
+    [autohide]="false"
+    [fade]="false"
+    [visible]="showToast"
+    color="{{ ToastColor }}"
+    #toast="cToast"
+  >
+    <c-toast-body style="color: white">{{ ToastMessage }}</c-toast-body>
+  </c-toast>
+</c-toaster>
+<c-card>
+    <c-card-body>
+      <div class="d-flex justify-content-end align-items-center">
+        <button type="button" class="btn btn-primary" (click)="toggleRegisterUserModal()"><svg cIcon name="cilUserPlus"></svg> Add User</button>
+      </div>
+      <c-smart-table
+      [activePage]="1"
+      [columnSorter]="true"
+      [columns]="CustomersColumns"
+      [itemsPerPageSelect]="true"
+      [itemsPerPage]="20"
+      tableFilterPlaceholder="Type Here"
+      [items]="CustomersData"
+      [sorterValue]="{ column: 'name', state: 'asc' }"
+      [tableFilter]="true"
+      tableFilterLabel="Search:"
+      [itemsPerPageLabel]="
+        totalCount ? totalCount + ' Items Per Page:' : 'Items Per Page:'
+      "
+      noItemsLabel="No Record Found"
+      [tableProps]="{ hover: true, striped: true, responsive: true }"
+      [tableBodyProps]="{ align: 'middle' }"
+      cleaner
+      clickableRows
+      header
+      pagination
+      [loading]="inProgress"
+      [columnFilter]="true"
+      (rowClick)="OpenUserPage($event)"
+    >
+      <ng-template
+        cTemplateId="tableData"
+        let-columnName="columnName"
+        let-item="item"
+        let-tdContent="tdContent"
+      >
+        <td>
+          <ng-container [ngSwitch]="columnName">
+            <ng-container *ngSwitchDefault>
+              {{ tdContent }}
+            </ng-container>
+          </ng-container>
+        </td>
+      </ng-template>
+    </c-smart-table>
+    </c-card-body>
+</c-card>
+
+
+<c-modal #AddUserModal [visible]="RegisterUserModalvisible" alignment="center" id="AddUserModal">
+  <c-modal-header>
+    <h5 cModalTitle>Add User</h5>
+    <button (click)="toggleRegisterUserModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <form
+      cForm
+      #AddUserForm="ngForm"
+      class="row g-3"
+      (ngSubmit)="AddUser(EmailAddress.value, FirstName.value, LastName.value)"
+    >
+      <c-col [md]="6">
+        <label cLabel for="FirstName">First Name *</label>
+        <input
+          cFormControl
+          required
+          id="FirstName"
+          #FirstName
+          ngModel
+          name="FirstName"
+          type="text"
+        />
+      </c-col>
+      <c-col [md]="6">
+        <label cLabel for="LastName">Last Name *</label>
+        <input
+          cFormControl
+          required
+          id="LastName"
+          #LastName
+          ngModel
+          name="LastName"
+          type="text"
+        />
+      </c-col>
+      <c-col [md]="12">
+        <label cLabel for="EmailAddress">Email Address *</label>
+        <input
+          cFormControl
+          required
+          id="EmailAddress"
+          #EmailAddress="ngModel"
+          name="EmailAddress"
+          type="email"
+          pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+          ngModel
+        />
+        <div *ngIf="EmailAddress.invalid && (EmailAddress.dirty || EmailAddress.touched)" class="invalid-feedback d-block" style="color: red;">
+          <span *ngIf="EmailAddress.errors?.['required']">Email is required.</span>
+          <span *ngIf="EmailAddress.errors?.['pattern'] || EmailAddress.errors?.['email']">Please enter a valid email address.</span>
+        </div>
+      </c-col>
+      <c-col [md]="10">
+        <label cLabel for="Roles">Roles *</label>
+        <c-multi-select
+          multiple
+          clearSearchOnSelect
+          cFormControl
+          id="Roles"
+          name="Roles"
+          [visibleItems]="5"
+          required
+          #Roles
+          [(ngModel)]="usersService.UserData.roles"
+        >
+          @for (role of RolessData; track $index) {
+          <c-multi-select-option
+            [value]="role.Id"
+            [selected]="
+              NewCreatedRoleID == role.Id ||
+              usersService.UserData.roles?.includes(role.Id)
+            "
+            >{{ role.RoleName }}</c-multi-select-option
+          >
+          }
+        </c-multi-select>
+      </c-col>
+      <c-col [md]="2">
+        <label cLabel for="addrole">New</label>
+        <button
+          cButton
+          color="primary"
+          variant="outline"
+          (click)="toggleModalRole()"
+        >
+          <svg cIcon name="cilPlus"></svg>
+        </button>
+      </c-col>
+      <c-col [md]="12" class="d-flex justify-content-end">
+        <button
+          cLoadingButton
+          [loading]="loading[0]"
+          cButton
+          disabledOnLoading
+          color="primary"
+          type="submit"
+          [disabled]="!AddUserForm.valid"
+        >
+          <svg cIcon name="cilSave"></svg> Save
+        </button>
+      </c-col>
+    </form>
+  </c-modal-body>
+</c-modal>
+
+
+<c-modal
+  #AddRole
+  alignment="center"
+  id="AddRole"
+  backdrop="static"
+  [visible]="ModalVisibleRole"
+>
+  <c-modal-header>
+    <h5 cModalTitle>Role Details</h5>
+    <button (click)="toggleModalRole()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <form
+      #RoleDetailsForm="ngForm"
+      (ngSubmit)="AddNewRole(RoleDetailsForm)"
+      [gutter]="3"
+      [validated]="customStylesValidated"
+      novalidate
+      cForm
+      cRow
+      class="needs-validation"
+    >
+      <c-col [md]="12">
+        <label cLabel for="RoleName">Role Name *</label>
+        <input
+          cFormControl
+          id="RoleName"
+          name="RoleName"
+          required
+          type="text"
+          [(ngModel)]="RolesService.RolesData.RoleName"
+        />
+        <c-form-feedback [valid]="true">Looks good!</c-form-feedback>
+        <c-form-feedback [valid]="false">Role Name is Required</c-form-feedback>
+      </c-col>
+      <c-col [md]="12">
+        <label cLabel for="Permissions">Permissions *</label>
+        <c-multi-select
+          multiple
+          clearSearchOnSelect
+          cFormControl
+          id="Permissions"
+          name="Permissions"
+          required
+          #rolePermissions="ngModel"
+          [valid]="
+            customStylesValidated
+              ? RoleDetailsForm.controls.Permissions?.valid
+              : undefined
+          "
+          [(ngModel)]="RolesService.RolesData.menus"
+          (valueChange)="onPermissionsChange($event)"
+          visibleItems="8"
+        >
+          @for (menu of MenuList; track $index) {
+          <c-multi-select-option
+            *ngIf="menu.Parent_Id === 0; else childRow"
+            [value]="menu.Id"
+            >{{ menu.MenuName }}</c-multi-select-option
+          >
+
+          <ng-template #childRow>
+            <c-multi-select-option [value]="menu.Id">
+              {{ "‎ ‎ ‎ ‎ ‎ ‎ " + menu.MenuName }}
+            </c-multi-select-option>
+          </ng-template>
+          }
+        </c-multi-select>
+        <c-form-feedback [valid]="true">Looks good!</c-form-feedback>
+        <c-form-feedback [valid]="false"></c-form-feedback>
+      </c-col>
+      <c-col [xs]="12">
+        <div class="text-end">
+          <button cButton color="primary" variant="outline" type="submit">
+            <c-spinner
+              aria-hidden="true"
+              size="sm"
+              *ngIf="ButtonLoading"
+            ></c-spinner>
+            Save
+          </button>
+        </div>
+      </c-col>
+    </form>
+  </c-modal-body>
+</c-modal>

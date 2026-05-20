@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls node_modules 2>nul | head -3 || echo \"no node_modules\")",
+      "PowerShell(npm install)",
+      "PowerShell(npm.cmd install)",
+      "PowerShell(npm.cmd install --legacy-peer-deps)",
+      "PowerShell(npm.cmd start -- --port 4210 --host localhost)",
+      "PowerShell(npm.cmd run start:dev -- --port=4201 --host=localhost)",
+      "Bash(Get-ChildItem -Path \"D:\\\\x2xOwais\\\\x2x_RMH_QuickBook_App_Front\\\\src\\\\app\\\\views\\\\configuration\" -Recurse -File)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(npm.cmd run start:local -- --port=4210 --host=localhost)",
+      "PowerShell(npm.cmd run start:dev -- --port=4210 --host=localhost)",
+      "PowerShell(npm.cmd install ngx-monaco-editor-v2 monaco-editor --legacy-peer-deps)"
+    ],
+    "additionalDirectories": [
+      "d:\\x2xOwais\\x2x_RMH_QuickBook_App_Front_Admin"
+    ]
+  }
+}

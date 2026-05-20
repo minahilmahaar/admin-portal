@@ -1,0 +1,10 @@
+.custom-switch input[type='checkbox'] {
+  box-shadow: 0 0 0 2px #5856D6;
+  transition: all 0.3s ease;
+  border-radius: 20px;
+}
+
+.custom-switch input[type='checkbox']:disabled {
+  opacity: 0.6;
+  box-shadow: 0 0 0 2px #888;
+}

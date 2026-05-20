@@ -55,12 +55,9 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'users',
-        loadComponent: () => import('./views/users/users.component').then(m => m.UsersComponent),
+        path: 'configuration',
+        loadChildren: () => import('./views/configuration/routes').then((m) => m.routes),
         canActivate: [authGuard],
-        data: {
-          title: 'Users'
-        }
       },
       {
         path: 'theme',

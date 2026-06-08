@@ -3,3 +3,145 @@
   height: 320px;
   width: 100%;
 }
+
+// =====================================================================
+// Compact, denser result table — applied via :host so styles reach
+// the CoreUI smart-table internals without ::ng-deep where possible.
+// =====================================================================
+:host {
+  .result-card {
+    .table-toolbar {
+      gap: 0.5rem;
+      font-size: 12px;
+    }
+  }
+
+  // SmartTable — tighten everything
+  ::ng-deep c-smart-table {
+    font-size: 10px;
+    line-height: 1.25;
+
+    table {
+      table-layout: auto;
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #475569;
+      background: #f1f5f9 !important;
+      border-bottom: 1px solid #cbd5e1 !important;
+      padding: 6px 10px !important;
+      white-space: nowrap !important;
+      word-break: keep-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+
+      // Force any nested wrapper (CoreUI may put text + sort-icon inside a flex div)
+      // to NOT wrap the column label across multiple lines.
+      & > *,
+      & div,
+      & span,
+      & a {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+      }
+
+      // Sort-arrow column: shrink the icon, keep it inline next to the label
+      svg,
+      .table-sort-icon,
+      [class*='sort'] {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
+    }
+
+    tbody td {
+      font-size: 10px;
+      padding: 4px 10px !important;
+      vertical-align: middle;
+      border-top: 1px solid #f1f5f9 !important;
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      transition: background-color 0.08s ease;
+    }
+    tbody tr:hover {
+      background-color: #eff6ff !important;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #fafbfc;
+    }
+
+    // Numeric / id columns — right align when value looks numeric
+    tbody td.numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    // Filter row (column-level filter inputs) — shrink
+    thead tr:nth-child(2) th {
+      padding: 4px 6px !important;
+      background: #f8fafc !important;
+      text-transform: none;
+      font-weight: 400;
+      input,
+      select {
+        font-size: 10px;
+        padding: 2px 6px;
+        height: 24px;
+      }
+    }
+
+    // Top toolbar (search + items-per-page)
+    .table-controls,
+    .smart-table-controls,
+    .table-controls-row {
+      font-size: 11px;
+      padding: 6px 0;
+
+      input,
+      select {
+        font-size: 11px;
+        padding: 3px 8px;
+        height: 28px;
+      }
+    }
+
+    // Pagination
+    .pagination {
+      font-size: 11px;
+      margin: 8px 0 0;
+
+      .page-link {
+        padding: 3px 8px;
+      }
+    }
+  }
+
+  // Scrollable wrapper so a wide result set scrolls horizontally
+  // without blowing out the card width
+  .result-scroll {
+    max-height: 520px;
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+  }
+}

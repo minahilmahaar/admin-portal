@@ -1,188 +1,98 @@
-<form [formGroup]="MyForm" (ngSubmit)="OnFormSubmit()">
-    <c-col xs="12">
-      <c-card class="mb-4">
-        <c-card-header ngPreserveWhitespaces>
-          <c-col xs="12">
-            <!-- First row -->
-            <c-row class="g-3 mt-1">
-              <c-col [sm]="3" class="d-flex justify-content-end pt-2">
-                <label cLabel><strong>From Date:</strong></label>
-              </c-col>
-              <c-col [sm]="3" class="mb-3">
-                <c-date-picker
-                  formControlName="FromDate"
-                  locale="en-US"
-                  [maxDate]="TodaysDate"
-                  required
-                ></c-date-picker>
-              </c-col>
-              <c-col [sm]="1" class="d-flex justify-content-end pt-2">
-                <label cLabel><strong>To Date:</strong></label>
-              </c-col>
-  
-              <c-col [sm]="3">
-                <c-date-picker
-                  formControlName="ToDate"
-                  locale="en-US"
-                  [maxDate]="TodaysDate"
-                  required
-                ></c-date-picker>
-              </c-col>
-            </c-row>
-            <!-- Second row -->
-            <!-- <c-row class="g-3">
-              <c-col [sm]="3" class="d-flex justify-content-end pt-2">
-                <label cLabel><strong>Activity Type:</strong></label>
-              </c-col>
-              <c-col [sm]="3">
-                <select
-                  aria-label="Default select example"
-                  cSelect
-                  formControlName="ActivityType"
-                  required
-                >
-                  <option value="">Select Option</option>
+<c-toaster style="margin-top: 115px" placement="top-end" position="fixed">
+  <c-toast
+    [autohide]="false"
+    [fade]="false"
+    [visible]="showToast"
+    color="{{ ToastColor }}"
+    #toast="cToast"
+  >
+    <c-toast-body style="color: white">{{ ToastMessage }}</c-toast-body>
+  </c-toast>
+</c-toaster>
 
-                </select>
-              </c-col>
-  
-              <c-col [sm]="1" class="d-flex justify-content-end pt-2">
-                <label cLabel><strong>Status:</strong></label>
-              </c-col>
-  
-              <c-col [sm]="3">
-                <select
-                  aria-label="Default select example"
-                  cSelect
-                  formControlName="Status"
-                >
-                  <option value="All">All</option>
-                  <option value="1">Success</option>
-                  <option value="0">Failed</option>
-                </select>
-              </c-col>
-            </c-row> -->
-            <!-- buttons row -->
-            <c-row class="g-3 mt-2 mb-2">
-              <c-col [sm]="2" class="d-flex justify-content-end pt-2"> </c-col>
-              <c-col [sm]="3" class="mb-3"> </c-col>
-              <c-col [sm]="2" class="d-flex justify-content-end pt-2"> </c-col>
-  
-              <c-col [sm]="3">
-                <div class="d-grid gap-2 d-md-flex d-flex justify-content-end">
-                  <button
-                    
-                    cLoadingButton
-                    type="submit"
-                    [disabled]="!MyForm.valid"
-                  >
-                    <svg cIcon name="cilSearch"></svg>
-                    Search
-                  </button>
-                  <button (click)="onCancel()" cButton color="danger">
-                    <svg cIcon name="cilXCircle"></svg> Clear
-                  </button>
-                </div>
-              </c-col>
-            </c-row>
-          </c-col>
-        </c-card-header>
-        <div class="d-flex justify-content-center mt-4 mb-4">
-          <c-col xs="11">
-            <c-smart-table
-              #PaymetTable
-              [activePage]="1"
-              [columnSorter]="true"
-              [columns]="Columns"
-              [items]="Data"
-              tableFilterPlaceholder="Type Here"
-              [itemsPerPageLabel]="
-                totalCount ? totalCount + 'Items Per Page:' : 'Items Per Page:'
-              "
-              [itemsPerPageSelect]="true"
-              [itemsPerPage]="10"
-              [sorterValue]="{ column: 'name', state: 'asc' }"
-              [tableFilter]="true"
-              tableFilterLabel="  Search:"
-              noItemsLabel="No Record Found"
-              [tableProps]="{ hover: true, responsive: true }"
-              [tableBodyProps]="{ align: 'middle' }"
-              cleaner
-              clickableRows
-              header
-              pagination
-              selectAll="false"
-            >
-              <ng-template
-                cTemplateId="tableData"
-                let-columnName="columnName"
-                let-item="item"
-                let-tdContent="tdContent"
-              >
-                <td>
-                  <ng-container [ngSwitch]="columnName">
-                    <ng-container *ngSwitchCase="'status'">
-                      <c-badge [color]="getBadge(tdContent)">
-                        {{ item[columnName] }}
-                      </c-badge>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'RMHID'">
-                      <div class="text-center">
-                        {{ tdContent }}
-                      </div>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'ACID'">
-                      <div class="text-end">
-                        {{ tdContent }}
-                      </div>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'RMHStoreID'">
-                      <div class="text-end">
-                        {{ tdContent }}
-                      </div>
-                    </ng-container>
-  
-                    <ng-container
-                      *ngSwitchCase="'IsActive'"
-                      [ngSwitch]="tdContent"
-                    >
-                      <c-form-check [switch]="true">
-                        <input
-                          cFormCheckInput
-                          type="checkbox"
-                          [checked]="tdContent"
-                          disabled
-                        />
-                      </c-form-check>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'CreatedOnUTC'">
-                      <div class="text-end">
-                        {{ tdContent }}
-                      </div>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'Actions'">
-                      <button
-                        (click)="onRowClickModel(item._id)"
-                        cButton
-                        color="primary"
-                        size="sm"
-                        variant="outline"
-                      >
-                        Edit
-                      </button>
-                    </ng-container>
-                    <ng-container *ngSwitchDefault>
-                      {{ tdContent }}
-                    </ng-container>
-                    <!-- <ng-container *ngSwitchCase="'CreatedOnUTC'">
-                      {{ tdContent | date: "short" }}
-                    </ng-container> -->
-                  </ng-container>
-                </td>
-              </ng-template>
-            </c-smart-table>
-          </c-col>
-        </div>
-      </c-card>
-    </c-col>
-  </form>
+<c-card class="mb-3">
+  <c-card-header><strong>Logs</strong></c-card-header>
+  <c-card-body>
+    <c-row class="g-3 align-items-end">
+      <c-col [md]="4">
+        <label cLabel for="LogType">Log Type *</label>
+        <select
+          cSelect
+          id="LogType"
+          name="LogType"
+          [(ngModel)]="logType"
+          (ngModelChange)="onLogTypeChange()"
+        >
+          <option value="">Select Log Type</option>
+          <option value="api">API Logs</option>
+          <option value="service">Service Logs</option>
+        </select>
+      </c-col>
+
+      <c-col [md]="4" *ngIf="logType === 'service'">
+        <label cLabel for="ClientSelect">Client *</label>
+        <select
+          cSelect
+          id="ClientSelect"
+          name="ClientSelect"
+          [(ngModel)]="selectedClientGUID"
+          [disabled]="loadingClients"
+        >
+          <option value="">{{ loadingClients ? 'Loading clients...' : 'Select Client' }}</option>
+          <option *ngFor="let c of clients" [value]="c.ClientServiceGUID">
+            {{ c.User_DisplayName || c.EmailAddress || c.ClientName || ('Client ' + c.Id) }}
+          </option>
+        </select>
+      </c-col>
+
+      <c-col [md]="4" class="d-flex gap-2">
+        <button
+          cLoadingButton
+          [loading]="fetching"
+          cButton
+          disabledOnLoading
+          color="primary"
+          type="button"
+          (click)="fetchLog()"
+          [disabled]="!canFetch()"
+        >
+          <svg cIcon name="cilCloudDownload"></svg> Fetch
+        </button>
+
+        <button
+          *ngIf="hasResult"
+          type="button"
+          cButton
+          color="secondary"
+          variant="outline"
+          (click)="clearResult()"
+        >
+          Clear
+        </button>
+      </c-col>
+    </c-row>
+  </c-card-body>
+</c-card>
+
+<c-card *ngIf="hasResult || fetching">
+  <c-card-header class="d-flex justify-content-between align-items-center">
+    <strong>{{ logType === 'api' ? 'API Log' : 'Service Log' }}</strong>
+    <button
+      *ngIf="hasResult && logContent"
+      type="button"
+      cButton
+      color="primary"
+      variant="outline"
+      size="sm"
+      (click)="downloadAsFile()"
+    >
+      <svg cIcon name="cilCloudDownload"></svg> Save as file
+    </button>
+  </c-card-header>
+  <c-card-body class="p-0">
+    <div *ngIf="fetching" class="text-center py-4">
+      <c-spinner color="primary"></c-spinner>
+    </div>
+    <pre *ngIf="!fetching" class="log-output">{{ logContent || 'No log content.' }}</pre>
+  </c-card-body>
+</c-card>

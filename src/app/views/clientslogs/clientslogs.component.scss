@@ -1,0 +1,14 @@
+.log-output {
+  max-height: 65vh;
+  overflow: auto;
+  padding: 1rem;
+  margin: 0;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 0 0 0.375rem 0.375rem;
+}

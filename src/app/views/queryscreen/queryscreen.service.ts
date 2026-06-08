@@ -22,11 +22,10 @@ export class QueryscreenService {
     });
   }
 
-  // TODO: confirm endpoint with backend team
-  executeQuery(clientId: number | string, query: string): Observable<any> {
+  executeQuery(clientServiceGUID: string, sqlQuery: string): Observable<any> {
     return this.http.post(
-      this.global.APIURL + 'api/MS/Query/Execute',
-      { Client_Id: clientId, Query: query },
+      this.global.APIURL + 'api/AdminPortal/SQLQueryRunner',
+      { ClientServiceGUID: clientServiceGUID, SqlQuery: sqlQuery },
       { headers: this.headers() }
     );
   }

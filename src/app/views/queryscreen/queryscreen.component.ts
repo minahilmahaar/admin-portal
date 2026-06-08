@@ -55,7 +55,7 @@ export class QueryscreenComponent implements OnInit {
   ToastColor = '';
 
   clients: any[] = [];
-  selectedClientId: any = '';
+  selectedClientGUID: string = '';
   loadingClients = false;
 
   query = 'SELECT * FROM ';
@@ -100,7 +100,7 @@ export class QueryscreenComponent implements OnInit {
   }
 
   executeQuery() {
-    if (!this.selectedClientId) {
+    if (!this.selectedClientGUID) {
       this.toast('Please select a client first', 'warning');
       return;
     }
@@ -113,9 +113,33 @@ export class QueryscreenComponent implements OnInit {
     this.resultColumns = [];
     this.resultData = [];
 
-    this.queryService.executeQuery(this.selectedClientId, this.query).subscribe({
+    this.queryService.executeQuery(this.selectedClientGUID, this.query).subscribe({
       next: (res: any) => {
-        const rows = Array.isArray(res?.Data) ? res.Data : Array.isArray(res) ? res : [];
+        console.log('🔎 SQLQueryRunner response (top-level keys):', res && typeof res === 'object' ? Object.keys(res) : typeof res);
+        console.log('🔎 SQLQueryRunner full response:', res);
+
+        const rows = this.extractRows(res);
+
+        // If API reported failure, surface its message and bail
+        if (res?.APIStatus && res.APIStatus.IsSuccess === false) {
+          this.executing = false;
+          this.toast(res.APIStatus.Message || 'Query failed', 'danger');
+          return;
+        }
+
+        // Server returned IsSuccess but ResultJson is a plain message (not JSON)
+        // Surface that message so the user knows why no rows came back.
+        if (!rows.length && typeof res?.ResultJson === 'string') {
+          const msg = res.ResultJson.trim();
+          const looksLikeJson = msg.startsWith('[') || msg.startsWith('{');
+          if (msg && !looksLikeJson) {
+            this.buildResult([]);
+            this.executing = false;
+            this.toast(msg, 'warning');
+            return;
+          }
+        }
+
         this.buildResult(rows);
         this.executing = false;
         this.toast(`Query executed. ${rows.length} row(s) returned.`, 'success');
@@ -128,6 +152,58 @@ export class QueryscreenComponent implements OnInit {
     });
   }
 
+  // Extracts a row array from any of the common response shapes the backend may use.
+  // Walks the object once and returns the first array of plain objects found
+  // (preferring stringified JSON in fields like ResultJson / Result / Data).
+  private extractRows(res: any): any[] {
+    if (res == null) return [];
+
+    // 1. Bare array
+    if (Array.isArray(res)) return res;
+
+    // 2. Common field names that hold an array directly
+    const arrayCandidates = ['Data', 'ResultJson', 'Result', 'Rows', 'Records', 'Items'];
+    for (const k of arrayCandidates) {
+      if (Array.isArray(res[k])) return res[k];
+    }
+
+    // 3. Stringified JSON in known fields
+    const stringCandidates = ['ResultJson', 'Result', 'Data', 'Json', 'ResultData', 'Output'];
+    for (const k of stringCandidates) {
+      const v = res[k];
+      if (typeof v === 'string' && v.trim()) {
+        try {
+          const parsed = JSON.parse(v);
+          if (Array.isArray(parsed)) return parsed;
+          // Sometimes wrapped: { Table: [...] } or { rows: [...] }
+          if (parsed && typeof parsed === 'object') {
+            for (const inner of ['Table', 'rows', 'Rows', 'data', 'Data']) {
+              if (Array.isArray(parsed[inner])) return parsed[inner];
+            }
+          }
+        } catch (e) {
+          // ignore, try next
+        }
+      }
+    }
+
+    // 4. Last resort: scan every top-level property
+    for (const k of Object.keys(res)) {
+      const v = res[k];
+      if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v;
+      if (typeof v === 'string' && v.length > 2 && (v[0] === '[' || v[0] === '{')) {
+        try {
+          const parsed = JSON.parse(v);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
+    return [];
+  }
+
   private buildResult(rows: any[]) {
     if (!rows.length) {
       this.resultColumns = [];
@@ -136,19 +212,78 @@ export class QueryscreenComponent implements OnInit {
       return;
     }
     const keys = Object.keys(rows[0]);
-    this.resultColumns = keys.map((k) => ({
-      key: k,
-      label: k,
-      filter: false,
-      sorter: true,
-      _style: { fontWeight: '500' },
-    }));
+    this.resultColumns = keys.map((k) => {
+      // Estimate column width: based on header length + max sample value length
+      // (sampled from first 30 rows so very long URLs/addresses don't dominate)
+      const sample = rows.slice(0, 30);
+      const maxLen = sample.reduce((m, r) => {
+        const v = r[k];
+        const s = v === null || v === undefined ? '' : String(v);
+        return Math.max(m, s.length);
+      }, k.length);
+      // ~6.5px per char @ 10px font, plus padding + sort icon space; cap at 260px
+      const minPx = Math.min(Math.max(k.length * 8 + 30, 80), 260);
+      return {
+        key: k,
+        label: k,
+        filter: false,
+        sorter: true,
+        _style: {
+          fontWeight: '500',
+          minWidth: minPx + 'px',
+          maxWidth: '260px',
+          whiteSpace: 'nowrap',
+        },
+      };
+    });
     this.resultData = rows;
     this.totalCount = 'Records Count: ' + rows.length + ' | ';
   }
 
   clearQuery() {
     this.query = '';
+  }
+
+  exportToExcel() {
+    if (!this.resultData?.length) {
+      this.toast('No data to export', 'warning');
+      return;
+    }
+
+    const cols = this.resultColumns.map((c) => c.key);
+
+    const escape = (val: any): string => {
+      if (val === null || val === undefined) return '';
+      const s = typeof val === 'object' ? JSON.stringify(val) : String(val);
+      // CSV-escape: wrap in quotes if contains comma / quote / newline / tab
+      if (/[",\n\r\t]/.test(s)) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+
+    const header = cols.join(',');
+    const lines = this.resultData.map((row) =>
+      cols.map((k) => escape(row[k])).join(',')
+    );
+    // ﻿ BOM so Excel detects UTF-8 (Unicode safe)
+    const csv = '﻿' + [header, ...lines].join('\r\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const ts = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace(/[:T]/g, '-');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `query-result-${ts}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    this.toast(`Exported ${this.resultData.length} row(s)`, 'success');
   }
 
   private toast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {

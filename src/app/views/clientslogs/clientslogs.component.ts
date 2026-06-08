@@ -1,266 +1,179 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { IconDirective, IconModule } from '@coreui/icons-angular';
 import {
   CardModule,
-  LoadingButtonComponent,
-  Tabs2Module,
-  ModalModule,
   GridModule,
-  InputGroupComponent,
-  InputGroupTextDirective,
-  RowComponent,
-  ColComponent,
-  CardComponent,
-  CardHeaderComponent,
-  CardBodyComponent,
-  FormControlDirective,
-  FormLabelDirective,
-  FormCheckInputDirective,
-  ThemeDirective,
-  DropdownComponent,
-  DropdownToggleDirective,
-  DropdownMenuDirective,
-  DropdownItemDirective,
-  DropdownDividerDirective,
-  FormSelectDirective,
-  SpinnerModule,
-  BadgeComponent,
+  FormModule,
+  ButtonModule,
   ButtonDirective,
-  CollapseDirective,
-  SmartTableComponent,
-  TemplateIdDirective,
-  TextColorDirective,
+  SpinnerModule,
   ToastModule,
   AlertModule,
-  AlertComponent,
-  AlertHeadingDirective,
-  AlertLinkDirective,
-  ButtonCloseDirective,
-  NavModule,
-  TabsModule,
-  ButtonGroupModule,
-  ButtonModule,
-  DropdownModule,
-  FormModule,
-  ListGroupModule,
-  MultiSelectModule,
-  SharedModule,
-  DatePickerModule,
-  DateRangePickerModule,
-  TimePickerModule,
   LoadingButtonModule,
-  TableModule,
+  SharedModule,
   UtilitiesModule,
-  BadgeModule,
-  CollapseModule,
-  SmartTableModule,
-  ProgressBarDirective,
-  ProgressComponent as ProgressComponent_1,
-  ProgressBarComponent,
-  ProgressStackedComponent,
-  FormDirective,
-  FormCheckComponent,
-  FormCheckLabelDirective,
-  ButtonGroupComponent,
 } from '@coreui/angular-pro';
-import { CommonModule, DatePipe } from '@angular/common';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-  UntypedFormBuilder,
-} from '@angular/forms';
-import { FormGroup,FormControl } from '@angular/forms';
-import { Subject, from } from 'rxjs';
-import { IconDirective } from '@coreui/icons-angular';
-import { IconModule } from '@coreui/icons-angular';
+import { ClientslogsService } from './clientslogs.service';
+import { ClientsService } from '../clients/clients.service';
+
+type LogType = '' | 'api' | 'service';
 
 @Component({
   selector: 'app-clientslogs',
   standalone: true,
   imports: [
-    Tabs2Module,
-    IconModule,
-    LoadingButtonComponent,
-    CardModule,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    BadgeComponent,
-    ButtonDirective,
-    CollapseDirective,
-    SmartTableComponent,
-    TemplateIdDirective,
-    TextColorDirective,
-    DatePickerModule,
-    DateRangePickerModule,
-    CommonModule,
-    ModalModule,
+    IconModule,
+    IconDirective,
+    CardModule,
     GridModule,
-    InputGroupComponent,
-    InputGroupTextDirective,
-    RowComponent,
-    ColComponent,
-    CardComponent,
-    CardHeaderComponent,
-    CardBodyComponent,
-    FormControlDirective,
-    FormLabelDirective,
-    FormCheckInputDirective,
-    ThemeDirective,
-    DropdownComponent,
-    DropdownToggleDirective,
-    DropdownMenuDirective,
-    DropdownItemDirective,
-    DropdownDividerDirective,
-    FormSelectDirective,
+    FormModule,
+    ButtonModule,
+    ButtonDirective,
     SpinnerModule,
     ToastModule,
     AlertModule,
-    AlertComponent,
-    AlertHeadingDirective,
-    AlertLinkDirective,
-    ButtonCloseDirective,
-    IconDirective,
-    ProgressBarDirective,
-    ProgressComponent_1,
-    ProgressBarComponent,
-    ProgressStackedComponent,
-    FormDirective,
-    FormCheckComponent,
-    FormCheckLabelDirective,
-    ButtonGroupComponent,
+    LoadingButtonModule,
+    SharedModule,
+    UtilitiesModule,
   ],
   templateUrl: './clientslogs.component.html',
-  styleUrl: './clientslogs.component.scss'
+  styleUrl: './clientslogs.component.scss',
 })
-export class ClientslogsComponent {
+export class ClientslogsComponent implements OnInit {
+  showToast = false;
+  ToastMessage = '';
+  ToastColor = '';
 
-  
-  totalCount: any;
-  Bar: boolean = false;
-  Loading: Number = 0;
-  public loading = new Array(4);
-  TodaysDate = new Date();
-  Data = [];
-  fromdatejson: string = "";
-  todatejson: string = "";
+  logType: LogType = '';
 
-  private destroyed = new Subject<void>();
+  clients: any[] = [];
+  loadingClients = false;
+  selectedClientGUID = '';
 
-  MyForm: FormGroup = new FormGroup({
-    FromDate : new FormControl(new Date()),
-    ToDate : new FormControl(new Date()),
-    ActivityType : new FormControl(""),
-    Status : new FormControl("All"),
-  });
+  fetching = false;
+  logContent = '';
+  hasResult = false;
 
-  Columns = [
-  {
-    key: 'ModuleName',
-    label: 'Column',
-    filter: false,
-    sorter: false,
-  },
-  {
-    key: 'ActionName',
-    label: 'Column',
-    filter: false,
-    sorter: false,
-  },
-  {
-    key: 'RMHID',
-    label: 'Column',
-    filter: false,
-    sorter: false,
-    _style: { width: '7%' },
-  },
-  {
-    key: 'ACDescription',
-    label: 'Column',
-    filter: false,
-    sorter: false,
-  },
+  constructor(
+    private logsService: ClientslogsService,
+    private clientsService: ClientsService
+  ) {}
 
-  {
-    key: 'IsActive',
-    label: 'Column',
-    filter: false,
-    sorter: false,
-  },
-
-  {
-    key: 'CreatedOnUTC',
-    label: 'Column',
-    filter: false,
-    sorter: false,
-    _style: { width: '16%' },
+  ngOnInit(): void {
+    this.loadClients();
   }
 
-  ];
-
-
-  
-async OnFormSubmit() {
-  this.Data = [];
-  this.totalCount = 0;
-  this.loading[0] = setTimeout(() => {
-    this.loading[0] = undefined;
-  }, 300000);
-
-  this.fromdatejson = this.MyForm.value.FromDate.toISOString().slice(0, -13);
-  this.fromdatejson = this.fromdatejson + "00:01:00.000Z";
-  this.todatejson = this.MyForm.value.ToDate.toISOString().slice(0,-13);
-  this.todatejson = this.todatejson + "23:59:59.999Z";
-  
-   var body = {
-    fromDate: this.fromdatejson,
-    toDate  : this.todatejson,
-    activityType : this.MyForm.value.ActivityType,
-    status: this.MyForm.value.Status
-    };
-
-    
-  console.log(body);
-
-  // (await this.ActivityLogService.getActivityLog(body)).subscribe((res: any) => {
-  //   ///alert('in');
-  //   console.log(res);
-  //   this.Data = res.ActivityLog;
-  //   this.Data = this.Data.map(sale => {
-  //     sale.CreatedOnUTC = this.datePipe.transform(sale.CreatedOnUTC, 'short');
-  //     return sale;
-  //   });
-  //   console.log(this.Data);
-  //   clearTimeout(this.loading[0]);
-  //   this.loading[0] = undefined;
-  //   this.totalCount = "Records Count: " + this.Data.length + " | ";
-  // });
-
-}
-
-
-onCancel()
-{
-
-  this.MyForm.controls['FromDate'].setValue(new Date());
-  this.MyForm.controls['ToDate'].setValue(new Date());
-  this.MyForm.controls['ActivityType'].setValue("");
-  this.MyForm.controls['Status'].setValue("All");
-  this.Data = [];
-  this.totalCount = 0;
-
-}
-
-
-onClick(idx: number): void {
-
-  if (!!this.loading[idx]) {
-    clearTimeout(this.loading[idx]);
-    this.loading[idx] = undefined;
-  } else {
-    this.loading[idx] = setTimeout(() => {
-      this.loading[idx] = undefined;
-    }, 3000);
+  loadClients() {
+    this.loadingClients = true;
+    this.clientsService.getClients().subscribe({
+      next: (res: any) => {
+        this.clients = Array.isArray(res?.Data) ? res.Data : Array.isArray(res) ? res : [];
+        this.loadingClients = false;
+      },
+      error: (err) => {
+        console.error('Error loading clients:', err);
+        this.loadingClients = false;
+      },
+    });
   }
-}
 
+  onLogTypeChange() {
+    this.selectedClientGUID = '';
+    this.logContent = '';
+    this.hasResult = false;
+  }
 
+  canFetch(): boolean {
+    if (this.logType === 'api') return true;
+    if (this.logType === 'service' && this.selectedClientGUID) return true;
+    return false;
+  }
+
+  fetchLog() {
+    if (!this.canFetch()) {
+      this.toast('Please complete the selection first', 'warning');
+      return;
+    }
+
+    this.fetching = true;
+    this.logContent = '';
+    this.hasResult = false;
+
+    if (this.logType === 'api') {
+      this.logsService.downloadAPILog().subscribe({
+        next: (text: string) => {
+          this.logContent = this.normalizeLog(text);
+          this.hasResult = true;
+          this.fetching = false;
+          this.toast('API log fetched', 'success');
+        },
+        error: (err) => {
+          this.fetching = false;
+          console.error('APILogDownload error:', err);
+          this.toast(err?.error?.Message || 'Failed to fetch API log', 'danger');
+        },
+      });
+      return;
+    }
+
+    this.logsService.readServiceLog(this.selectedClientGUID).subscribe({
+      next: (res: any) => {
+        this.logContent = this.extractServiceLog(res);
+        this.hasResult = true;
+        this.fetching = false;
+        this.toast('Service log fetched', 'success');
+      },
+      error: (err) => {
+        this.fetching = false;
+        console.error('ReadServiceLog error:', err);
+        this.toast(err?.error?.Message || 'Failed to fetch service log', 'danger');
+      },
+    });
+  }
+
+  clearResult() {
+    this.logContent = '';
+    this.hasResult = false;
+  }
+
+  downloadAsFile() {
+    if (!this.logContent) return;
+    const fileName = this.logType === 'api' ? 'APILog.txt' : 'ServiceLog.txt';
+    const blob = new Blob([this.logContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private normalizeLog(raw: any): string {
+    if (raw == null) return '';
+    if (typeof raw === 'string') return raw;
+    return JSON.stringify(raw, null, 2);
+  }
+
+  private extractServiceLog(res: any): string {
+    if (typeof res === 'string') return res;
+    return (
+      res?.Data?.Log ||
+      res?.Data?.LogContent ||
+      res?.Data ||
+      res?.Log ||
+      this.normalizeLog(res)
+    );
+  }
+
+  private toast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+    this.ToastMessage = message;
+    this.ToastColor = color;
+    this.showToast = true;
+    setTimeout(() => (this.showToast = false), 3000);
+  }
 }

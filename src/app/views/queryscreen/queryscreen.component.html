@@ -20,12 +20,12 @@
           cSelect
           id="ClientSelect"
           name="ClientSelect"
-          [(ngModel)]="selectedClientId"
+          [(ngModel)]="selectedClientGUID"
           [disabled]="loadingClients"
         >
           <option value="">{{ loadingClients ? 'Loading clients...' : 'Select Client' }}</option>
-          <option *ngFor="let c of clients" [value]="c.Id ?? c.Client_Id ?? c.id">
-            {{ c.ClientName ?? c.Name ?? c.DisplayName ?? c.UserDisplayName ?? ('Client ' + (c.Id ?? c.Client_Id ?? c.id)) }}
+          <option *ngFor="let c of clients" [value]="c.ClientServiceGUID">
+            {{ c.User_DisplayName || c.EmailAddress || c.ClientName || ('Client ' + c.Id) }}
           </option>
         </select>
       </c-col>
@@ -71,32 +71,53 @@
   </c-card-body>
 </c-card>
 
-<c-card>
-  <c-card-header><strong>Result</strong></c-card-header>
+<c-card class="result-card">
+  <c-card-header class="d-flex justify-content-between align-items-center">
+    <strong>Result</strong>
+    <div class="d-flex align-items-center" style="gap: 10px;">
+      <span class="text-medium-emphasis" style="font-size: 11px;" *ngIf="resultColumns.length">
+        {{ totalCount }}{{ resultColumns.length }} column(s)
+      </span>
+      <button
+        cButton
+        color="success"
+        variant="outline"
+        size="sm"
+        type="button"
+        (click)="exportToExcel()"
+        [disabled]="!resultData.length"
+        title="Export current result as CSV (opens in Excel)"
+      >
+        <svg cIcon name="cilCloudDownload" class="me-1"></svg>
+        Export Excel
+      </button>
+    </div>
+  </c-card-header>
   <c-card-body>
     <div *ngIf="!resultColumns.length && !executing" class="text-center text-medium-emphasis py-4">
       Run a query to see results.
     </div>
-    <c-smart-table
-      *ngIf="resultColumns.length"
-      [activePage]="1"
-      [columnSorter]="true"
-      [columns]="resultColumns"
-      [items]="resultData"
-      [itemsPerPageSelect]="true"
-      [itemsPerPage]="20"
-      [tableFilter]="true"
-      tableFilterLabel="Search:"
-      tableFilterPlaceholder="Type Here"
-      [itemsPerPageLabel]="totalCount + ' Items Per Page:'"
-      noItemsLabel="No Record Found"
-      [tableProps]="{ hover: true, striped: true, responsive: true, small: true }"
-      [tableBodyProps]="{ align: 'middle' }"
-      [loading]="executing"
-      header
-      pagination
-      cleaner
-      [columnFilter]="true"
-    ></c-smart-table>
+    <div class="result-scroll" *ngIf="resultColumns.length">
+      <c-smart-table
+        [activePage]="1"
+        [columnSorter]="true"
+        [columns]="resultColumns"
+        [items]="resultData"
+        [itemsPerPageSelect]="true"
+        [itemsPerPage]="25"
+        [tableFilter]="true"
+        tableFilterLabel="Search:"
+        tableFilterPlaceholder="Type Here"
+        [itemsPerPageLabel]="totalCount + ' Items Per Page:'"
+        noItemsLabel="No Record Found"
+        [tableProps]="{ hover: true, striped: false, responsive: true, small: true, borderless: true }"
+        [tableBodyProps]="{ align: 'middle' }"
+        [loading]="executing"
+        header
+        pagination
+        cleaner
+        [columnFilter]="true"
+      ></c-smart-table>
+    </div>
   </c-card-body>
 </c-card>

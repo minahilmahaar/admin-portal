@@ -118,7 +118,7 @@ togglePassword() {
     recaptcha: ['', Validators.required]
   });
 }
-captchaSiteKey: string = '6LcsJXotAAAAAHT-RuWTRPalxoMdzYFDWZ5zLNHv';
+captchaSiteKey: string = '6LedhuAtAAAAAB4h-nLE2TkXWCR-0CkJpT4O1GG-';
  ngOnInit(): void {
 
   if (

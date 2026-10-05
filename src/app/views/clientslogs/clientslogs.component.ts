@@ -48,13 +48,10 @@ export class ClientslogsComponent implements OnInit {
   showToast = false;
   ToastMessage = '';
   ToastColor = '';
-
   logType: LogType = '';
-
   clients: any[] = [];
   loadingClients = false;
   selectedClientGUID = '';
-
   fetching = false;
   logContent = '';
   hasResult = false;
@@ -136,10 +133,53 @@ export class ClientslogsComponent implements OnInit {
     });
   }
 
-  clearResult() {
-    this.logContent = '';
-    this.hasResult = false;
+clearResult(): void {
+
+  if (this.logType === 'api') {
+    this.logsService.clearAPILog().subscribe({
+      next: (res: any) => {
+        console.log('API Log Clear Response:', res);
+        this.logContent = '';
+        this.hasResult = false;
+        this.toast('API log cleared successfully', 'success');
+      },
+      error: (err: any) => {
+        console.error('API Log Clear Error:', err);
+        this.toast(
+          err?.error?.Message || 'Failed to clear API log',
+          'danger'
+        );
+      }
+    });
+    return;
   }
+  if (this.logType === 'service') {
+
+    if (!this.selectedClientGUID) {
+      this.toast(
+        'Please select a client first', 'warning'
+      );
+      return;
+    }
+    this.logsService.clearServiceLog(this.selectedClientGUID).subscribe({
+        next: (res: any) => {
+          console.log('Service Log Clear Response:', res);
+          this.logContent = '';
+          this.hasResult = false;
+          this.toast(
+            'Service log cleared successfully', 'success'
+          );
+        },
+        error: (err: any) => {
+          console.error(
+          'Service Log Clear Error:', err);
+          this.toast(err?.error?.Message || 'Failed to clear service log',
+            'danger'
+          );
+        }
+      });
+  }
+}
 
   downloadAsFile() {
     if (!this.logContent) return;
@@ -176,4 +216,5 @@ export class ClientslogsComponent implements OnInit {
     this.showToast = true;
     setTimeout(() => (this.showToast = false), 3000);
   }
+  
 }

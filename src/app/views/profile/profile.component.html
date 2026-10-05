@@ -1,0 +1,284 @@
+<div class="container-fluid px-2 py-3"
+>
+
+  <c-card
+    class="shadow-sm rounded-4 "
+    style="
+      width: 100%;
+      min-height: 680px;
+      border: 1px solid #c5c9ce !important;
+    "
+  >
+
+    <c-card-body class="p-0">
+
+      @if (user) {
+
+        <div
+          class="px-4 py-3"
+          style="
+            background: #f1f3f7;
+            border-radius: 16px 16px 0 0;
+            border-bottom: 1px solid #c5c9ce;
+          "
+        >
+          <div class="d-flex align-items-center">
+
+
+            <div>
+
+              <h5
+                class="mb-1 fw-semibold"
+                style="font-size: 34px;"
+              >
+               User Profile
+              </h5>
+
+            </div>
+
+          </div>
+        </div>
+        <div class="px-4 py-4">
+
+          <c-row class="g-4">
+
+            <c-col xs="12" md="3">
+
+              <div
+                class="text-center d-flex flex-column align-items-center"
+                style="
+                  padding-top: 0;
+                "
+              >
+                <div class="mb-3">
+
+                  <img
+                    src="./assets/images/avatars/user.png"
+                    alt="User Profile"
+                    class="rounded-circle"
+                    style="
+                      width: 115px;
+                      height: 115px;
+                      object-fit: cover;
+                      border: 3px solid #e4e1ff;
+                    "
+                  />
+
+                </div>
+
+                <div
+                  class="fw-semibold"
+                  style="
+                    font-size: 22px;
+                    line-height: 1.3;
+                  "
+                >
+                  {{ user.FirstName }} {{ user.LastName }}
+                </div>
+
+                <div
+                  class="text-body-secondary mt-2"
+                  style="
+                    font-size: 16px;
+                    word-break: break-word;
+                  "
+                >
+                  {{ user.EmailAddress }}
+                </div>
+
+              </div>
+
+            </c-col>
+
+            <c-col xs="12" md="9">
+
+              <div>
+
+                <c-row class="g-4">
+
+                  <c-col xs="12" md="6">
+
+                    <label
+                      class="form-label mb-2"
+                      style="font-size: 22px;
+                      font-weight: 400;"
+                    >
+                      First Name
+                    </label>
+
+                    <input
+                      cFormControl
+                      type="text"
+                      [(ngModel)]="user.FirstName"
+                      placeholder="Enter first name"
+                      style="
+                        height: 50px;
+                        font-size: 21px;
+                      "
+                    />
+
+                  </c-col>
+
+                  <c-col xs="12" md="6">
+
+                    <label
+                      class="form-label mb-2"
+                      style="font-size: 22px;
+                      font-weight: 400;"
+                    >
+                      Last Name
+                    </label>
+
+                    <input
+                      cFormControl
+                      type="text"
+                      [(ngModel)]="user.LastName"
+                      placeholder="Enter last name"
+                      style="
+                        height: 50px;
+                        font-size: 21px;
+                      "
+                    />
+
+                  </c-col>
+
+                  <c-col xs="12">
+
+                    <label
+                      class="form-label mb-2"
+                      style="font-size: 22px;
+                      font-weight: 400;"
+                    >
+                      Email Address
+                    </label>
+
+                    <input
+                      cFormControl
+                      type="email"
+                      [(ngModel)]="user.EmailAddress"
+                      placeholder="Enter email address"
+                      style="
+                        height: 50px;
+                        font-size: 21px;
+                      "
+                    />
+<div
+  class="text-body-secondary mt-2"
+  style="font-size: 18px;"
+>
+  Your email address cannot be changed.
+</div>
+                  </c-col>
+
+
+               
+                  <c-col xs="12">
+
+                    <label
+                      class="form-label mb-2"
+                      style="
+                        font-size: 22px;
+                        font-weight: 400;
+                      "
+                    >
+                      Phone Number
+                    </label>
+
+                    <input
+                      cFormControl
+                      type="text"
+                      [(ngModel)]="user.MobilePhoneNumber"
+                      placeholder="Enter phone number"
+                      style="
+                        height: 50px;
+                        font-size: 21px;
+                      "
+                    />
+
+                  </c-col>
+
+
+                 <c-col xs="12">
+
+  <label
+    class="form-label mb-2"
+    style="
+      font-size: 22px;
+      font-weight: 400;
+    "
+  >
+    Address
+  </label>
+
+  <textarea
+    cFormControl
+    [(ngModel)]="user.Address"
+    placeholder="Enter address"
+    rows="3"
+    style="
+      min-height: 120px;
+      font-size: 21px;
+      resize: vertical;
+    "
+  ></textarea>
+  <div
+    style="
+      margin-top: 50px;
+      border-bottom: 1px solid #c5c9ce;
+      width: 100%;
+    "
+  ></div>
+</c-col>
+                </c-row>
+
+              </div>
+
+            </c-col>
+
+          </c-row>
+
+        </div>
+
+      } @else {
+        
+        <div class="text-center py-5">
+
+          <div
+            class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+            style="
+              width: 64px;
+              height: 64px;
+              background: #f1f1f7;
+              color: #777;
+            "
+          >
+            <svg
+              cIcon
+              name="cilUser"
+              size="lg"
+            ></svg>
+          </div>
+
+          <h6
+            class="fw-semibold"
+            style="font-size: 18px;"
+          >
+            User information not available
+          </h6>
+
+          <div
+            class="text-body-secondary"
+            style="font-size: 15px;"
+          >
+            Please login again to load your profile information.
+          </div>
+
+        </div>
+
+      }
+
+    </c-card-body>
+
+  </c-card>
+
+</div>

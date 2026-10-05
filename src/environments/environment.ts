@@ -1,5 +1,6 @@
 export const environment = {
+  
   production: false,
-  envName: 'local',
-  apiUrl: 'https://x2xdev.accsoft.com:3007'
+  envName: 'qa',
+  apiUrl: 'https://partners.x2xecommerce.com/sandbox/qbapi/'
 };

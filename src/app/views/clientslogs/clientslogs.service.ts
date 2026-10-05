@@ -36,4 +36,23 @@ export class ClientslogsService {
       { headers: this.headers() }
     );
   }
+  clearAPILog(): Observable<any> {
+  return this.http.get(
+    this.global.APIURL + 'api/AdminPortal/APILogClear',
+    {
+      headers: this.headers()
+    }
+  );
+} 
+clearServiceLog(clientServiceGUID: string): Observable<any> {
+  return this.http.post(
+    this.global.APIURL + 'api/AdminPortal/ClearLogService',
+    {
+      ClientServiceGUID: clientServiceGUID
+    },
+    {
+      headers: this.headers()
+    }
+  );
+}
 }

@@ -10,6 +10,7 @@ export const navItems: INavData[] = [
     //   text: 'NEW'
     // }
   },
+
   {
     name: 'Clients',
     url: '/clients',
@@ -47,7 +48,18 @@ export const navItems: INavData[] = [
       },
     ],
   },
-
+{
+  name: 'Publish Version',
+  url: '/service-version',
+  iconComponent: { name: 'cil-cloud-upload' },
+  children: [
+    {
+      name: 'Service-Version',
+      url: '/service-version/service',
+      iconComponent: { name: 'cil-layers' },
+    },
+  ],
+},
   // {
   //   title: true,
   //   name: 'Theme'

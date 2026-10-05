@@ -1,0 +1,157 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- Page Heading -->
+  <div class="mb-4">
+    <h3 class="mb-1 fw-semibold">
+      Service Version
+    </h3>
+
+    <p class="text-medium-emphasis mb-0">
+      Select a service and upload its installer.
+    </p>
+  </div>
+
+
+  <!-- Main Card -->
+  <div class="card shadow-sm">
+
+    <!-- Card Header -->
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0 fw-semibold">
+        Upload Installer
+      </h5>
+    </div>
+
+
+    <!-- Card Body -->
+    <div class="card-body p-4">
+
+      <!-- Success Message -->
+      <div
+        *ngIf="successMessage"
+        class="alert alert-success"
+        role="alert">
+
+        {{ successMessage }}
+
+      </div>
+
+
+      <!-- Error Message -->
+      <div
+        *ngIf="errorMessage"
+        class="alert alert-danger"
+        role="alert">
+
+        {{ errorMessage }}
+
+      </div>
+
+
+      <!-- Service Select -->
+      <div class="mb-4">
+
+        <label
+          for="service"
+          class="form-label fw-semibold">
+
+          Select Service
+        </label>
+
+        <select
+          id="service"
+          class="form-select"
+          [(ngModel)]="selectedService"
+          (change)="onServiceChange()">
+
+          <option value="">
+            Select Service
+          </option>
+
+          <option
+            *ngFor="let service of services"
+            [value]="service.value">
+
+            {{ service.name }}
+
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- File Section -->
+      <div *ngIf="selectedService">
+
+        <div class="mb-4">
+
+          <label
+            for="installerFile"
+            class="form-label fw-semibold">
+
+            Select Installer File
+          </label>
+
+          <input
+            id="installerFile"
+            type="file"
+            class="form-control"
+            (change)="onFileSelected($event)">
+
+          <div
+            *ngIf="selectedFile"
+            class="mt-2 text-medium-emphasis">
+
+            Selected File:
+            <strong>{{ selectedFile.name }}</strong>
+
+          </div>
+
+        </div>
+
+<div *ngIf="installerUrl" class="mb-4">
+
+  <label
+    for="installerUrl"
+    class="form-label fw-semibold">
+    Installer URL
+  </label>
+
+  <input
+    id="installerUrl"
+    type="text"
+    class="form-control"
+    [value]="installerUrl"
+    readonly>
+
+</div>
+
+        <!-- Install Button -->
+        <div class="d-flex justify-content-end">
+
+          <button
+            type="button"
+            class="btn btn-primary px-4"
+            [disabled]="!selectedFile || isUploading"
+            (click)="installFile()">
+
+            <span
+              *ngIf="isUploading"
+              class="spinner-border spinner-border-sm me-2"
+              role="status">
+            </span>
+
+            {{ isUploading ? 'Uploading...' : 'Upload' }}
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

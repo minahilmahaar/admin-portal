@@ -55,10 +55,38 @@ export const routes: Routes = [
         }
       },
       {
+  path: 'profile',
+  loadComponent: () =>
+    import('./views/profile/profile.component')
+      .then(m => m.ProfileComponent),
+  canActivate: [authGuard],
+  data: {
+    title: 'Profile'
+  }
+},
+      {
         path: 'configuration',
         loadChildren: () => import('./views/configuration/routes').then((m) => m.routes),
         canActivate: [authGuard],
       },
+{
+  path: 'service-version',
+  canActivate: [authGuard],
+  children: [
+    {
+      path: '',
+      pathMatch: 'full',
+      redirectTo: 'service'
+    },
+    {
+      path: 'service',
+      loadComponent: () =>
+        import('./views/service-version/service-version.component')
+          .then(m => m.ServiceVersionComponent),
+      data: { title: 'Service Version' }
+    }
+  ]
+},
       {
         path: 'theme',
         loadChildren: () => import('./views/theme/routes').then((m) => m.routes)
@@ -144,5 +172,6 @@ export const routes: Routes = [
       title: 'Register Page'
     }
   },
+  
   { path: '**', redirectTo: 'dashboard' }
 ];

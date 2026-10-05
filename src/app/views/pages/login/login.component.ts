@@ -1,6 +1,22 @@
-import { Component } from '@angular/core';
-import { NgStyle } from '@angular/common';
-import { IconDirective } from '@coreui/icons-angular';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import { RecaptchaModule } from 'ng-recaptcha';
+import {
+  cilLockLocked,
+  cilUser,
+  cilLockUnlocked,
+  cilLowVision,
+  
+} from '@coreui/icons';
 import {
   ContainerComponent,
   RowComponent,
@@ -10,269 +26,238 @@ import {
   CardComponent,
   CardBodyComponent,
   FormDirective,
+  ToastModule,
   InputGroupComponent,
   InputGroupTextDirective,
   FormControlDirective,
   ButtonDirective,
+  FormCheckComponent,
+  FormCheckInputDirective,
+  FormCheckLabelDirective,
+  ToasterComponent,
+  ToastComponent,
+  ToastBodyComponent
 } from '@coreui/angular-pro';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import {
-  LoadingButtonComponent,
-  ToastModule,
-} from '@coreui/angular-pro';
-import { Router } from '@angular/router';
-import { GlobalobjectService } from '../../../globalobject.service';
+
+import { IconDirective } from '@coreui/icons-angular';
+import { LoadingButtonComponent } from '@coreui/angular-pro';
+
 import { LoginService } from './login.service';
-import { NgxCaptchaModule } from 'ngx-captcha';
-import { ViewChild } from '@angular/core';
-import { CaptchaService } from './captcha.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { RecaptchaModule } from 'ng-recaptcha';
-import { CookieService } from 'ngx-cookie-service';
+import { GlobalobjectService } from '../../../globalobject.service';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  standalone: true,
+
   imports: [
     CommonModule,
-    ReactiveFormsModule, 
+    ReactiveFormsModule,
     RecaptchaModule,
-    NgStyle,
-    LoadingButtonComponent,
-    FormsModule,
+FormCheckComponent,
+FormCheckInputDirective,
+FormCheckLabelDirective,
     ContainerComponent,
     RowComponent,
     ColComponent,
-    CardGroupComponent,
-    TextColorDirective,
     CardComponent,
     CardBodyComponent,
-    FormDirective,
+    CardGroupComponent,
+
     InputGroupComponent,
     InputGroupTextDirective,
-    IconDirective,
     FormControlDirective,
+
     ButtonDirective,
+    LoadingButtonComponent,
+
     ToastModule,
-    NgxCaptchaModule,
+     ToasterComponent,
+    ToastComponent,
+    ToastBodyComponent,
+
+    IconDirective
   ]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
+  loginForm!: FormGroup;
 
-  //#region Variables
+  showPassword = false;
 
+  loading: any[] = [];
 
   showToast = false;
   ToastMessage = '';
   ToastColor = '';
-  customStylesValidated = false;
-  showPassword = false;
-  loginError = '';
-  loading: any[] = [];
-  captchaToken: string = '';
-  captchaSiteKey: string = '6Ld2PSMrAAAAAOtqgfhNYQ0rTYLFhEqDTyllGTaV';
-  loginForm: FormGroup;
-  captchaResolved: boolean = false;
-  //#endregion Variables
 
-  constructor(    
-    private cookieService: CookieService, 
+captchaToken: string = '';
+captchaResolved = false;
+icons = {
+  cilLockLocked,
+  cilLowVision,
+  cilLockUnlocked,
+  cilUser,
+  
+};
+togglePassword() {
+  this.showPassword = !this.showPassword;
+}
+
+  constructor(
+    private fb: FormBuilder,
+    private loginService: LoginService,
     private router: Router,
-    private GlobalobjectService: GlobalobjectService,
-    private LoginService: LoginService,
-    private recaptcha: CaptchaService,
-    private fb: FormBuilder) {
-    this.loginForm = this.fb.group({
-      EmailAddress: ['', [Validators.required, Validators.email]],
-      Password: ['', [Validators.required, Validators.minLength(6)]],
-      ///recaptcha: ['', Validators.required]
-    });
+    private globalObjectService: GlobalobjectService,
+    private cookieService: CookieService,
+     
+  ){
+  this.loginForm = this.fb.group({
+    EmailAddress: ['', [Validators.required, Validators.email]],
+    Password: ['', [Validators.required, Validators.minLength(6)]],
+    recaptcha: ['', Validators.required]
+  });
+}
+captchaSiteKey: string = '6LcsJXotAAAAAHT-RuWTRPalxoMdzYFDWZ5zLNHv';
+ ngOnInit(): void {
+
+  if (
+    this.cookieService.get('AccessToken') &&
+    this.cookieService.get('RefreshToken')
+  ) {
+    this.router.navigate(['/dashboard']);
   }
 
-  ngOnInit(): void {
-    if(
-    this.cookieService.get('AccessToken') !== '' &&
-    this.cookieService.get('RefreshToken') !== '' &&
-    this.cookieService.get('Client_Id') !== '' &&
-    this.cookieService.get('AccessToken') !== undefined &&
-    this.cookieService.get('RefreshToken') !== undefined &&
-    this.cookieService.get('Client_Id') !== undefined
-    )
-    {
-      this.router.navigate(['/dashboard']);
-    }
-  }
+}
 
-  onCaptchaResolved(response: string) {
-    this.captchaResolved = !!response;
-    this.loginForm.get('recaptcha')?.setValue(response);
-  }
-
-  async onSubmit() {
-
-    //start loading
-    this.customStylesValidated = false;
-    this.loading[0] = setTimeout(() => {
-      this.loading[0] = undefined;
-    }, 7000);
-    //end loading
-
-    if (this.loginForm.valid) {
-
-      const formData = this.loginForm.value;
-
-      //console.log(formData);
-    
-      await this.LoginService.login(formData).subscribe(
-        (res: any) => {
-          clearTimeout(this.loading[0]);
-
-          if(res.APIStatus.IsSuccess)
-          {
-            this.GlobalobjectService.AccessToken = res.AccessToken;
-            this.GlobalobjectService.RefreshToken = res.RefreshToken;
-            this.GlobalobjectService.EmailAddress = res.EmailAddress;
-
-            
-            const expires = new Date(new Date().getTime() + 15 * 60 * 1000);
-            this.cookieService.set('AccessToken', res.AccessToken, expires, '/');
-            this.cookieService.set('RefreshToken', res.RefreshToken, expires, '/');
-            this.cookieService.set('Client_Id', res.Data.Client_Id, expires, '/');
-
-            //console.log(res.Data.Client_Id);
-
-            this.router.navigate(['/dashboard']);
-            //console.log(res.APIStatus);
-          }
-          else {
-
-          this.showToast = true;
-          this.ToastMessage = res.APIStatus.Message;
-          this.ToastColor = 'danger';
-
-          console.log(res);
-          
-
-          }
-        
-          // show toaster
-          // this.showToast = true;
-          // this.ToastMessage = 'Login Successful! Redirecting...';
-          // this.ToastColor = 'success';
-
-          setTimeout(() => {
-            this.showToast = false;
-          }, 3000);
-  
-  
-          ///this.router.navigate(['/dashboard']);
-        },
-        (error) => {
-          clearTimeout(this.loading[0]);
-          //show toaster
-          this.showToast = true;
-          this.ToastMessage = 'Login Failed! Please try again.';
-          this.ToastColor = 'danger';
-          setTimeout(() => {
-            this.showToast = false;
-          }, 3000);
-        }
-      );
-    } else {
-      this.loginForm.markAllAsTouched();
-    }
-  }
-
-  togglePasswordVisibility(): void {
+  togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
 
-  async loginFormData(email: string, password: string, captcha: string): Promise<void> {
+onCaptchaResolved(token: string | null) {
+  this.captchaResolved = !!token;
 
-    const token = await this.recaptcha.execute();
-    console.log('reCAPTCHA token:', token);
+  if (token) {
+    this.loginForm.get('recaptcha')?.setValue(token);
+  }
+}
+  onSubmit() {
 
-    if (!captcha) {
-      alert("Please complete the captcha.");
+    if (!this.loginForm.valid) {
+      this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.customStylesValidated = true;
+    if (!this.captchaResolved) {
 
-    if (!email || !password) {
-      this.displayError('Please Enter Email Address And Password.');
+      this.ToastColor = 'warning';
+      this.ToastMessage = 'Please complete reCAPTCHA';
+      this.showToast = true;
+
+      setTimeout(() => {
+        this.showToast = false;
+      }, 3000);
+
       return;
     }
 
-    const body = { EmailAddress: email, Password: password };
+    this.loading[0] = true;
 
-    console.log(body);
+    this.loginService.login(this.loginForm.value).subscribe({
 
-    // Simulate loading
-    this.loading[0] = setTimeout(() => {
-      this.loading[0] = undefined;
-    }, 7000);
+      next: (res: any) => {
 
-    await this.LoginService.login(body).subscribe(
-      (res: any) => {
-        clearTimeout(this.loading[0]);
-        this.loading[0] = undefined;
+        this.loading[0] = false;
 
         if (res.APIStatus.IsSuccess) {
-          this.GlobalobjectService.AccessToken = res.AccessToken;
-          this.GlobalobjectService.RefreshToken = res.RefreshToken;
-          this.GlobalobjectService.EmailAddress = res.EmailAddress;
 
-          const expires = new Date(new Date().getTime() + 15 * 60 * 1000);
-          this.cookieService.set('AccessToken', res.AccessToken, expires, '/');
-          this.cookieService.set('RefreshToken', res.RefreshToken, expires, '/');
-          this.cookieService.set('Client_Id', res.Data.Client_Id, expires, '/');
+          this.globalObjectService.AccessToken = res.AccessToken;
+          this.globalObjectService.RefreshToken = res.RefreshToken;
+          this.globalObjectService.EmailAddress = res.Data.EmailAddress;
 
-          // show toaster
-          this.showToast = true;
-          this.ToastMessage = 'Login Successful! Redirecting...';
+// Profile
+
+const userProfile = {
+  FirstName: res.Data.FirstName,
+  LastName: res.Data.LastName,
+  EmailAddress: res.Data.EmailAddress,
+  MobilePhoneNumber: res.Data.MobilePhoneNumber,
+  Address: res.Data.Address
+};
+
+this.globalObjectService.UserProfile = userProfile;
+
+localStorage.setItem(
+  'UserProfile',
+  JSON.stringify(userProfile)
+);
+
+          const expires = new Date(
+            new Date().getTime() + 15 * 60 * 1000
+          );
+
+          this.cookieService.set(
+            'AccessToken',
+            res.AccessToken,
+            expires,
+            '/'
+          );
+
+          this.cookieService.set(
+            'RefreshToken',
+            res.RefreshToken,
+            expires,
+            '/'
+          );
+
+          this.cookieService.set(
+            'Client_Id',
+            res.Data.Client_Id,
+            expires,
+            '/'
+          );
+
           this.ToastColor = 'success';
-          setTimeout(() => {
-            this.showToast = false;
-          }, 3000);
+          this.ToastMessage = 'Login Successful';
 
-        this.router.navigate(['/dashboard']);
+          this.showToast = true;
+
+          setTimeout(() => {
+
+            this.showToast = false;
+
+            this.router.navigate(['/dashboard']);
+
+          }, 1000);
 
         } else {
-          this.displayError(res.APIStatus.Message);
-          // show toaster
 
-          this.showToast = true;
-          this.ToastMessage = res.APIStatus.Message;
           this.ToastColor = 'danger';
+          this.ToastMessage = res.APIStatus.Message;
+          this.showToast = true;
+
           setTimeout(() => {
             this.showToast = false;
           }, 3000);
-
-
         }
-        
       },
-      (error) => {
-        clearTimeout(this.loading[0]);
-        this.displayError('Login failed. Please try again.');
+
+      error: () => {
+
+        this.loading[0] = false;
+
+        this.ToastColor = 'danger';
+        this.ToastMessage = 'Login Failed';
+
+        this.showToast = true;
+
+        setTimeout(() => {
+          this.showToast = false;
+        }, 3000);
       }
-    );
-  }
 
-  handleCaptcha(token: string) {
-    console.log('Captcha resolved with token: ', token);
-  }
+    });
 
-  private displayError(message: string): void {
-    this.loginError = message;
-    setTimeout(() => {
-      this.loginError = '';
-    }, 3000);
   }
-
 
 }

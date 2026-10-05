@@ -139,7 +139,8 @@ import {
   cilUserPlus,
   cilPlus,
   cilArrowThickLeft,
-  cilShieldAlt
+  cilShieldAlt,
+  cilCloudUpload
 
 
 
@@ -291,7 +292,8 @@ export const iconSubset = {
   cilUserPlus,
   cilPlus,
   cilArrowThickLeft,
-  cilShieldAlt
+  cilShieldAlt,
+  cilCloudUpload
 
 };
 
@@ -333,6 +335,7 @@ export enum IconSubset {
   cilChevronLeft = 'cilChevronLeft',
   cilChevronRight = 'cilChevronRight',
   cilCloudDownload = 'cilCloudDownload',
+  cilCloudUpload = 'cilCloudUpload',
   cilCode = 'cilCode',
   cilCommentSquare = 'cilCommentSquare',
   cilContrast = 'cilContrast',

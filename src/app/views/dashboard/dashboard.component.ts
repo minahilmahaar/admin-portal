@@ -1,203 +1,394 @@
-import { DOCUMENT, NgStyle } from '@angular/common';
-import { Component, DestroyRef, effect, inject, OnInit, Renderer2, signal, WritableSignal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ChartOptions } from 'chart.js';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { IconDirective, IconSetService } from '@coreui/icons-angular';
+
 import {
-  AvatarComponent,
+  BadgeComponent,
   ButtonDirective,
-  ButtonGroupComponent,
   CardBodyComponent,
   CardComponent,
-  CardFooterComponent,
-  CardHeaderComponent,
   ColComponent,
-  FormCheckLabelDirective,
-  GutterDirective,
   ProgressBarDirective,
   ProgressComponent,
   RowComponent,
-  TableDirective,
-  TextColorDirective
+  SpinnerComponent
 } from '@coreui/angular-pro';
+
 import { ChartjsComponent } from '@coreui/angular-chartjs';
-import { IconDirective } from '@coreui/icons-angular';
 
-import { WidgetsBrandComponent } from '../widgets/widgets-brand/widgets-brand.component';
-import { WidgetsDropdownComponent } from '../widgets/widgets-dropdown/widgets-dropdown.component';
-import { DashboardChartsData, IChartProps } from './dashboard-charts-data';
-import { GlobalobjectService } from '../../globalobject.service';
-import { CookieService } from 'ngx-cookie-service';
+import { DashboardService } from './dashboard.service';
 
-interface IUser {
-  name: string;
-  state: string;
-  registered: string;
-  country: string;
-  usage: number;
-  period: string;
-  payment: string;
-  activity: string;
-  avatar: string;
-  status: string;
-  color: string;
+
+interface DashboardSummary {
+  TotalClients: number;
+  LiveClients: number;
+  OfflineClients: number;
+  NotRespondingClients: number;
+  StaleOnlineFlags: number;
+  ActiveClients: number;
+  InActiveClients: number;
+  DisconnectedClients: number;
+  UnknownLiveConnections: number;
+  IsPingPerformed: boolean;
 }
+
+
+interface ClientConnection {
+  Id: number;
+  User_Id: number;
+  ClientName: string;
+  EmailAddress: string;
+  User_DisplayName: string;
+
+  IsLive: boolean;
+  Status: string;
+
+  IsOnline_DB: boolean;
+  IsStaleOnlineFlag: boolean;
+  IsActive: boolean;
+  IsDisconnected: boolean;
+  IsResponding: boolean;
+
+  IsSync: boolean;
+  CreatedOnUTC: string;
+  UpdatedOnUTC: string;
+}
+
 
 @Component({
   templateUrl: 'dashboard.component.html',
   styleUrls: ['dashboard.component.scss'],
   standalone: true,
-  imports: [WidgetsDropdownComponent, TextColorDirective, CardComponent, CardBodyComponent, RowComponent, ColComponent, ButtonDirective, IconDirective, ReactiveFormsModule, ButtonGroupComponent, FormCheckLabelDirective, ChartjsComponent, NgStyle, CardFooterComponent, GutterDirective, ProgressBarDirective, ProgressComponent, WidgetsBrandComponent, CardHeaderComponent, TableDirective, AvatarComponent]
+
+  imports: [
+    CommonModule,
+
+    CardComponent,
+    CardBodyComponent,
+
+    RowComponent,
+    ColComponent,
+
+    ButtonDirective,
+
+    BadgeComponent,
+
+    ProgressComponent,
+    ProgressBarDirective,
+
+    SpinnerComponent,
+
+    ChartjsComponent,
+
+    IconDirective
+  ]
 })
 export class DashboardComponent implements OnInit {
+  summary: DashboardSummary = {
 
-  readonly #destroyRef: DestroyRef = inject(DestroyRef);
-  readonly #document: Document = inject(DOCUMENT);
-  readonly #renderer: Renderer2 = inject(Renderer2);
-  readonly #chartsData: DashboardChartsData = inject(DashboardChartsData);
+    TotalClients: 0,
+    LiveClients: 0,
+    OfflineClients: 0,
+    NotRespondingClients: 0,
+    StaleOnlineFlags: 0,
+    ActiveClients: 0,
+    InActiveClients: 0,
+    DisconnectedClients: 0,
+    UnknownLiveConnections: 0,
+    IsPingPerformed: false
 
-  public users: IUser[] = [
-    // {
-    //   name: 'Yiorgos Avraamu',
-    //   state: 'New',
-    //   registered: 'Jan 1, 2021',
-    //   country: 'Us',
-    //   usage: 50,
-    //   period: 'Jun 11, 2021 - Jul 10, 2021',
-    //   payment: 'Mastercard',
-    //   activity: '10 sec ago',
-    //   avatar: './assets/images/avatars/1.jpg',
-    //   status: 'success',
-    //   color: 'success'
-    // },
-    // {
-    //   name: 'Avram Tarasios',
-    //   state: 'Recurring ',
-    //   registered: 'Jan 1, 2021',
-    //   country: 'Br',
-    //   usage: 10,
-    //   period: 'Jun 11, 2021 - Jul 10, 2021',
-    //   payment: 'Visa',
-    //   activity: '5 minutes ago',
-    //   avatar: './assets/images/avatars/2.jpg',
-    //   status: 'danger',
-    //   color: 'info'
-    // },
-    // {
-    //   name: 'Quintin Ed',
-    //   state: 'New',
-    //   registered: 'Jan 1, 2021',
-    //   country: 'In',
-    //   usage: 74,
-    //   period: 'Jun 11, 2021 - Jul 10, 2021',
-    //   payment: 'Stripe',
-    //   activity: '1 hour ago',
-    //   avatar: './assets/images/avatars/3.jpg',
-    //   status: 'warning',
-    //   color: 'warning'
-    // },
-    // {
-    //   name: 'Enéas Kwadwo',
-    //   state: 'Sleep',
-    //   registered: 'Jan 1, 2021',
-    //   country: 'Fr',
-    //   usage: 98,
-    //   period: 'Jun 11, 2021 - Jul 10, 2021',
-    //   payment: 'Paypal',
-    //   activity: 'Last month',
-    //   avatar: './assets/images/avatars/4.jpg',
-    //   status: 'secondary',
-    //   color: 'danger'
-    // },
-    // {
-    //   name: 'Agapetus Tadeáš',
-    //   state: 'New',
-    //   registered: 'Jan 1, 2021',
-    //   country: 'Es',
-    //   usage: 22,
-    //   period: 'Jun 11, 2021 - Jul 10, 2021',
-    //   payment: 'ApplePay',
-    //   activity: 'Last week',
-    //   avatar: './assets/images/avatars/5.jpg',
-    //   status: 'success',
-    //   color: 'primary'
-    // },
-    // {
-    //   name: 'Friderik Dávid',
-    //   state: 'New',
-    //   registered: 'Jan 1, 2021',
-    //   country: 'Pl',
-    //   usage: 43,
-    //   period: 'Jun 11, 2021 - Jul 10, 2021',
-    //   payment: 'Amex',
-    //   activity: 'Yesterday',
-    //   avatar: './assets/images/avatars/6.jpg',
-    //   status: 'info',
-    //   color: 'dark'
-    // }
-  ];
+  };
 
-  public mainChart: IChartProps = { type: 'line' };
-  public mainChartRef: WritableSignal<any> = signal(undefined);
-  #mainChartRefEffect = effect(() => {
-    if (this.mainChartRef()) {
-      this.setChartStyles();
-    }
-  });
-  public chart: Array<IChartProps> = [];
-  public trafficRadioGroup = new FormGroup({
-    trafficRadio: new FormControl('Month')
-  });
 
-  constructor (
-    private GlobalobjectService: GlobalobjectService,
-    private CookieService : CookieService,
-  ){
-    
-  }
+  clients: ClientConnection[] = [];
+  isLoading = false;
+  errorMessage = '';
+  lastUpdated = '';
+  connectionChartData: any = {
+
+    labels: [
+      'Live',
+      'Offline'
+    ],
+
+    datasets: [
+      {
+        data: [
+          0,
+          0
+        ],
+
+        backgroundColor: [
+          '#4f46e5',
+          '#e2e8f0'
+        ],
+
+        borderWidth: 0
+      }
+    ]
+
+  };
+
+  // ACCOUNT DOUGHNUT CHART
+  accountChartData: any = {
+
+    labels: [
+      'Active',
+      'Inactive'
+    ],
+
+    datasets: [
+      {
+        data: [
+          0,
+          0
+        ],
+
+        backgroundColor: [
+          '#0f9d8a',
+          '#f0b429'
+        ],
+
+        borderWidth: 0
+      }
+    ]
+
+  };
+
+  chartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+
+      legend: {
+        display: false
+      }
+
+    },
+
+    cutout: '72%'
+
+  };
+
+ constructor(
+  private dashboardService: DashboardService,
+  private iconSet: IconSetService
+) {}
+
+
   ngOnInit(): void {
 
-    this.initCharts();
-    this.updateChartOnColorModeChange();
-    //console.log(this.CookieService.get('AccessToken'));
-    //console.log(this.CookieService.get('RefreshToken'));
+    this.loadDashboard();
 
-    ///console.log(this.GlobalobjectService.AccessToken);
   }
 
-  initCharts(): void {
-    this.mainChart = this.#chartsData.mainChart;
-  }
-
-  setTrafficPeriod(value: string): void {
-    this.trafficRadioGroup.setValue({ trafficRadio: value });
-    this.#chartsData.initMainChart(value);
-    this.initCharts();
-  }
-
-  handleChartRef($chartRef: any) {
-    if ($chartRef) {
-      this.mainChartRef.set($chartRef);
-    }
-  }
-
-  updateChartOnColorModeChange() {
-    const unListen = this.#renderer.listen(this.#document.documentElement, 'ColorSchemeChange', () => {
-      this.setChartStyles();
-    });
-
-    this.#destroyRef.onDestroy(() => {
-      unListen();
-    });
-  }
-
-  setChartStyles() {
-    if (this.mainChartRef()) {
-      setTimeout(() => {
-        const options: ChartOptions = { ...this.mainChart.options };
-        const scales = this.#chartsData.getScales();
-        this.mainChartRef().options.scales = { ...options.scales, ...scales };
-        this.mainChartRef().update();
+  loadDashboard(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.dashboardService
+      .getClientsConnectionReport()
+      .subscribe({
+        next: (response: any) => {
+          console.log(
+            'Dashboard API Response:',
+            response
+          );
+          if (response?.APIStatus?.IsSuccess) {
+            this.summary =
+              response.Summary ||
+              this.summary;
+            this.clients =
+              response.Data ||
+              [];
+            this.updateCharts();
+            this.lastUpdated =
+              new Date().toLocaleString();
+          }
+          else {
+            this.errorMessage =
+              response?.APIStatus?.Message ||
+              'Unable to load dashboard data.';
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error(
+            'Dashboard API Error:',
+            error
+          );
+          this.errorMessage =
+            'Unable to load dashboard data. Please try again.';
+          this.isLoading = false;
+        }
       });
+  }
+  
+
+   refreshDashboard(): void {
+    this.loadDashboard();
+  }
+
+
+  updateCharts(): void {
+    this.connectionChartData = {
+
+      labels: [
+        'Live',
+        'Offline'
+      ],
+
+      datasets: [
+        {
+          data: [
+
+            this.summary.LiveClients,
+
+            this.summary.OfflineClients
+
+          ],
+
+          backgroundColor: [
+
+            '#4f46e5',
+
+            '#e2e8f0'
+
+          ],
+
+          borderWidth: 0
+
+        }
+      ]
+
+    };
+
+    // ACCOUNT CHART
+   
+    this.accountChartData = {
+
+      labels: [
+        'Active',
+        'Inactive'
+      ],
+
+      datasets: [
+        {
+          data: [
+
+            this.summary.ActiveClients,
+
+            this.summary.InActiveClients
+
+          ],
+
+          backgroundColor: [
+
+            '#0f9d8a',
+
+            '#f0b429'
+
+          ],
+
+          borderWidth: 0
+
+        }
+      ]
+
+    };
+
+  }
+  get livePercentage(): number {
+
+    if (!this.summary.TotalClients) {
+      return 0;
     }
+    return Math.round(
+      (
+        this.summary.LiveClients /
+        this.summary.TotalClients
+      ) * 100
+    );
+  }
+  get activePercentage(): number {
+    if (!this.summary.TotalClients) {
+      return 0;
+    }
+    return Math.round(
+      (
+        this.summary.ActiveClients /
+        this.summary.TotalClients
+      ) * 100
+    );
+  }
+  get offlinePercentage(): number {
+    if (!this.summary.TotalClients) {
+      return 0;
+    }
+    return Math.round(
+      (
+        this.summary.OfflineClients /
+        this.summary.TotalClients
+      ) * 100
+    );
+  }
+  get stalePercentage(): number {
+
+    if (!this.summary.TotalClients) {
+      return 0;
+    }
+    return Math.min(
+      Math.round(
+
+        (
+          this.summary.StaleOnlineFlags /
+          this.summary.TotalClients
+        ) * 100
+      ),
+      100
+    );
+  }
+
+  getStatusColor(status: string): string {
+    if (status === 'Live') {
+      return 'success';
+
+    }
+    if (status === 'Offline') {
+      return 'secondary';
+    }
+    return 'warning';
+  }
+
+
+  getSyncColor(
+    client: ClientConnection
+  ): string {
+
+    return client.IsSync
+
+      ? 'success'
+
+      : 'warning';
+
+  }
+  getSyncText(
+    client: ClientConnection
+  ): string {
+
+    return client.IsSync
+
+      ? 'Synced'
+
+      : 'Pending';
+
+  }
+  formatDate(
+    date: string
+  ): string {
+    if (!date) {
+      return '-';
+    }
+    return new Date(date)
+      .toLocaleString();
   }
 }

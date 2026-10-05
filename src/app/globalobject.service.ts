@@ -11,6 +11,7 @@ export class GlobalobjectService {
   public RefreshToken: any;
   public AccessToken: any;
   public EmailAddress : any;
+  UserProfile: any = null;
 
   onReload = new EventEmitter<void>();
   triggerOnReload(): void {

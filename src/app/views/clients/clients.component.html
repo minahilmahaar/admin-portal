@@ -44,6 +44,38 @@
           <ng-container [ngSwitch]="columnName">
             <ng-container *ngSwitchCase="'Actions'">
               <div class="action-cell">
+
+   <button
+  cButton
+  color="success"
+  size="sm"
+  variant="ghost"
+  (click)="checkClientServiceStatus(item)"
+  title="Check service status"
+  class="icon-btn"
+  [disabled]="statusLoadingId === item.Id"
+>
+  <c-spinner
+    *ngIf="statusLoadingId === item.Id"
+    size="sm"
+  ></c-spinner>
+
+   <!-- <svg
+    *ngIf="statusLoadingId !== item.Id"
+    [cIcon]="icons.cilReload"
+    width="18"
+    height="18"
+   
+  ></svg> -->
+<svg
+  *ngIf="statusLoadingId !== item.Id"
+  [cIcon]="icons.cilReload"
+  width="20"
+  height="20"
+  style="stroke-width: 2;"
+></svg>
+</button>
+
                 <button
                   cButton
                   color="primary"
@@ -75,11 +107,18 @@
               </c-form-check>
             </ng-container>
 
-            <ng-container *ngSwitchCase="'IsOnline'">
-              <c-form-check [switch]="true" class="custom-switch">
-                <input cFormCheckInput type="checkbox" [checked]="tdContent" disabled />
-              </c-form-check>
-            </ng-container>
+        <ng-container *ngSwitchCase="'Status'">
+  <span
+    class="badge text-white"
+    [ngClass]="{
+      'text-bg-danger': !tdContent || tdContent === 'Not Checked',
+      'text-bg-success': tdContent === 'Offline',
+      'text-bg-warning': tdContent === 'Not Responding'
+    }"
+  >
+    {{ tdContent || 'Not Checked' }}
+  </span>
+</ng-container>
 
             <ng-container *ngSwitchDefault>
               {{ tdContent }}

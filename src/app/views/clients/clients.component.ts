@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IconDirective } from '@coreui/icons-angular';
 import {
+  cilReload,
+  cilLowVision,
+  cilPencil,
+  cilLink
+} from '@coreui/icons';
+import {
   CardModule,
   GridModule,
   FormModule,
@@ -51,14 +57,19 @@ import { ClientsService, EditClientBody } from './clients.service';
   styleUrl: './clients.component.scss',
 })
 export class ClientsComponent implements OnInit {
+icons = {
+  cilReload,
+  cilLowVision,
+  cilPencil,
+  cilLink
+};
   showToast = false;
   ToastMessage = '';
   ToastColor = '';
-
   inProgress = false;
   totalCount: any = 'Records Count: 0 | ';
   CustomersData: any[] = [];
-
+  statusLoadingId: any = null;
   EditModalVisible = false;
   EditLoading = false;
   EditForm: EditClientBody = {
@@ -77,7 +88,7 @@ export class ClientsComponent implements OnInit {
     { key: 'User_DisplayName', label: 'Display Name', filter: false, sorter: true, _style: { fontWeight: '500' } },
     { key: 'User_MobilePhoneNumber', label: 'Phone', filter: false, sorter: false, _style: { fontWeight: '500' } },
     { key: 'IsActive', label: 'Active', filter: false, sorter: true, _style: { fontWeight: '500', width: '7%', textAlign: 'center' } },
-    { key: 'IsOnline', label: 'Online', filter: false, sorter: true, _style: { fontWeight: '500', width: '7%', textAlign: 'center' } },
+    {key: 'Status', label: 'Status', filter: false, sorter: true, _style: { fontWeight: '500', width: '10%', textAlign: 'center' }},
     { key: 'CreatedOnUTC', label: 'Created On', filter: false, sorter: true, _style: { fontWeight: '500' } },
     { key: 'Actions', label: 'Actions', filter: false, sorter: false, _style: { fontWeight: '500', width: '90px', textAlign: 'center' } },
   ];
@@ -149,14 +160,12 @@ export class ClientsComponent implements OnInit {
       },
     });
   }
-
   goToRMHQBO(row: any) {
     const email = row?.EmailAddress;
     if (!email) {
       this.toast('This client has no email address on file', 'warning');
       return;
     }
-
     this.clientsService.clientLogin(email).subscribe({
       next: (res: any) => {
         console.log('🔎 ClientLogin response:', res);
@@ -179,11 +188,46 @@ export class ClientsComponent implements OnInit {
       },
     });
   }
-
   private toast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
     this.ToastMessage = message;
     this.ToastColor = color;
     this.showToast = true;
     setTimeout(() => (this.showToast = false), 3000);
   }
+checkClientServiceStatus(row: any) {
+const clientServiceGUID = row?.ClientServiceGUID;
+  if (!clientServiceGUID) {
+    this.toast('ClientServiceGUID not found', 'warning');
+    return;
+  }
+    this.statusLoadingId = row.Id;
+    this.clientsService.checkClientServiceStatus(clientServiceGUID).subscribe({
+    next: (res: any) => {
+    console.log('CheckClientServiceStatus response:', res);
+    this.statusLoadingId = null;
+    const status =
+        res?.Status ||
+        res?.Data?.Status ||
+        res?.Data?.[0]?.Status || '';
+      row.Status = status || 'Unknown';
+      this.toast(
+        status ? `Status: ${status}` : 'Status not returned',
+        status ? 'success' : 'warning'
+      );
+    },
+    error: (err) => {
+      this.statusLoadingId = null;
+      console.error(
+        'CheckClientServiceStatus error:',
+        err
+      );
+      this.toast(
+        err?.error?.Message ||
+        err?.message ||
+        'Failed to check client service status',
+        'danger'
+      );
+    }
+  });
+}
 }

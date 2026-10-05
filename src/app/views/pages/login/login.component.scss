@@ -1,0 +1,25 @@
+.login-card {
+  max-width: 1050px;
+  margin: 40px auto;
+  border-radius: 16px;
+}
+
+.left-panel {
+  background: var(--cui-primary);
+  color: #fff;
+}
+.login-body {
+  padding: 3rem;
+}
+.login-description {
+  text-align: justify;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+}
+.illustration {
+  max-width: 240px;
+}
+@media (max-width: 991px) {
+  .left-panel {
+    display: none !important;
+  }
+}

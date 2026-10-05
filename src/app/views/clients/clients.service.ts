@@ -52,5 +52,14 @@ export class ClientsService {
       { EmailAddress: emailAddress },
       { headers: this.headers() }
     );
-  }
+  } 
+  checkClientServiceStatus(clientServiceGUID: string): Observable<any> {
+  return this.http.post(
+    this.global.APIURL + 'api/AdminPortal/CheckClientServiceStatus',
+    {
+      ClientServiceGUID: clientServiceGUID
+    },
+    { headers: this.headers() }
+  );
+}
 }

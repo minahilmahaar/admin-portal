@@ -115,10 +115,10 @@ togglePassword() {
   this.loginForm = this.fb.group({
     EmailAddress: ['', [Validators.required, Validators.email]],
     Password: ['', [Validators.required, Validators.minLength(6)]],
-    recaptcha: ['', Validators.required]
+    // recaptcha: ['', Validators.required]  // captcha disabled for now
   });
 }
-captchaSiteKey: string = '6LcsJXotAAAAAHT-RuWTRPalxoMdzYFDWZ5zLNHv';
+captchaSiteKey: string = '6LedhuAtAAAAAB4h-nLE2TkXWCR-0CkJpT4O1GG-';
  ngOnInit(): void {
 
   if (
@@ -148,18 +148,19 @@ onCaptchaResolved(token: string | null) {
       return;
     }
 
-    if (!this.captchaResolved) {
-
-      this.ToastColor = 'warning';
-      this.ToastMessage = 'Please complete reCAPTCHA';
-      this.showToast = true;
-
-      setTimeout(() => {
-        this.showToast = false;
-      }, 3000);
-
-      return;
-    }
+    // Captcha disabled for now
+    // if (!this.captchaResolved) {
+    //
+    //   this.ToastColor = 'warning';
+    //   this.ToastMessage = 'Please complete reCAPTCHA';
+    //   this.showToast = true;
+    //
+    //   setTimeout(() => {
+    //     this.showToast = false;
+    //   }, 3000);
+    //
+    //   return;
+    // }
 
     this.loading[0] = true;
 

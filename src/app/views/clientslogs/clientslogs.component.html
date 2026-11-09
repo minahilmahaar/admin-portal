@@ -23,7 +23,8 @@
           [(ngModel)]="logType"
           (ngModelChange)="onLogTypeChange()"
         >
-          <option value="">Select Log Type</option>
+          <!-- <option value="">Select Log Type</option> -->
+           <option value="" disabled selected hidden>Select Log Type</option>
           <option value="api">API Logs</option>
           <option value="service">Service Logs</option>
         </select>
@@ -31,18 +32,21 @@
 
       <c-col [md]="4" *ngIf="logType === 'service'">
         <label cLabel for="ClientSelect">Client *</label>
-        <select
-          cSelect
-          id="ClientSelect"
-          name="ClientSelect"
-          [(ngModel)]="selectedClientGUID"
-          [disabled]="loadingClients"
-        >
-          <option value="">{{ loadingClients ? 'Loading clients...' : 'Select Client' }}</option>
-          <option *ngFor="let c of clients" [value]="c.ClientServiceGUID">
-            {{ c.User_DisplayName || c.EmailAddress || c.ClientName || ('Client ' + c.Id) }}
-          </option>
-        </select>
+       <select
+  cSelect
+  id="ClientSelect"
+  name="ClientSelect"
+  [(ngModel)]="selectedClientGUID"
+  [disabled]="loadingClients"
+>
+  <option value="" disabled hidden>
+    {{ loadingClients ? 'Loading clients...' : 'Select Client' }}
+  </option>
+
+  <option *ngFor="let c of clients" [value]="c.ClientServiceGUID">
+    {{ c.User_DisplayName || c.EmailAddress || c.ClientName || ('Client ' + c.Id) }}
+  </option>
+</select>
       </c-col>
 
       <c-col [md]="4" class="d-flex gap-2">

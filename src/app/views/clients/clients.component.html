@@ -40,7 +40,14 @@
         let-item="item"
         let-tdContent="tdContent"
       >
-        <td>
+     <td
+  [class.text-nowrap]="
+    columnName === 'User_MobilePhoneNumber' ||
+    columnName === 'IsActive' ||
+    columnName === 'CreatedOnUTC' ||
+    columnName === 'Actions'
+  "
+>
           <ng-container [ngSwitch]="columnName">
             <ng-container *ngSwitchCase="'Actions'">
               <div class="action-cell">
@@ -101,11 +108,11 @@
               </div>
             </ng-container>
 
-            <ng-container *ngSwitchCase="'IsActive'">
-              <c-form-check [switch]="true" class="custom-switch">
-                <input cFormCheckInput type="checkbox" [checked]="tdContent" disabled />
-              </c-form-check>
-            </ng-container>
+         <ng-container *ngSwitchCase="'IsActive'">
+  <c-form-check [switch]="true" class="custom-switch ms-2">
+    <input cFormCheckInput type="checkbox" [checked]="tdContent" disabled />
+  </c-form-check>
+</ng-container>
 
         <ng-container *ngSwitchCase="'Status'">
   <span

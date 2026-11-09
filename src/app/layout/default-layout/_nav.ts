@@ -26,11 +26,11 @@ export const navItems: INavData[] = [
     url: '/queryscreen',
     iconComponent: { name: 'cil-storage' },
   },
-  {
-    name: 'Failed Transactions',
-    url: '/failedtransactions',
-    iconComponent: { name: 'cil-ban' },
-  },
+  // {
+  //   name: 'Failed Transactions',
+  //   url: '/failedtransactions',
+  //   iconComponent: { name: 'cil-ban' },
+  // },
   {
     name: 'Configuration',
     url: '/configuration',

@@ -86,11 +86,53 @@ icons = {
     { key: 'ClientName', label: 'Client Name', filter: false, sorter: true, _style: { fontWeight: '500' } },
     { key: 'EmailAddress', label: 'Email', filter: false, sorter: true, _style: { fontWeight: '500' } },
     { key: 'User_DisplayName', label: 'Display Name', filter: false, sorter: true, _style: { fontWeight: '500' } },
-    { key: 'User_MobilePhoneNumber', label: 'Phone', filter: false, sorter: false, _style: { fontWeight: '500' } },
-    { key: 'IsActive', label: 'Active', filter: false, sorter: true, _style: { fontWeight: '500', width: '7%', textAlign: 'center' } },
+    {
+  key: 'User_MobilePhoneNumber',
+  label: 'Phone',
+  filter: false,
+  sorter: false,
+  _style: {
+    fontWeight: '500',
+    width: '150px',
+    whiteSpace: 'nowrap'
+  }
+},
+{
+  key: 'IsActive',
+  label: 'Active',
+  filter: false,
+  sorter: true,
+  _style: {
+    fontWeight: '500',
+    width: '75px',
+    textAlign: 'center',
+    whiteSpace: 'nowrap'
+  }
+},
     {key: 'Status', label: 'Status', filter: false, sorter: true, _style: { fontWeight: '500', width: '10%', textAlign: 'center' }},
-    { key: 'CreatedOnUTC', label: 'Created On', filter: false, sorter: true, _style: { fontWeight: '500' } },
-    { key: 'Actions', label: 'Actions', filter: false, sorter: false, _style: { fontWeight: '500', width: '90px', textAlign: 'center' } },
+{
+  key: 'CreatedOnUTC',
+  label: 'Created On',
+  filter: false,
+  sorter: true,
+  _style: {
+    fontWeight: '500',
+    width: '160px',
+    whiteSpace: 'nowrap'
+  }
+},
+   {
+  key: 'Actions',
+  label: 'Actions',
+  filter: false,
+  sorter: false,
+  _style: {
+    fontWeight: '500',
+    width: '90px',
+    textAlign: 'center',
+    whiteSpace: 'nowrap'
+  }
+},
   ];
 
   constructor(private clientsService: ClientsService) {}

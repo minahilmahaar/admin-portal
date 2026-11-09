@@ -23,7 +23,7 @@
           [(ngModel)]="selectedClientGUID"
           [disabled]="loadingClients"
         >
-          <option value="">{{ loadingClients ? 'Loading clients...' : 'Select Client' }}</option>
+          <option value="" disabled hidden>{{ loadingClients ? 'Loading clients...' : 'Select Client' }}</option>
           <option *ngFor="let c of clients" [value]="c.ClientServiceGUID">
             {{ c.User_DisplayName || c.EmailAddress || c.ClientName || ('Client ' + c.Id) }}
           </option>
